@@ -1,0 +1,29 @@
+<nav class="navbar navbar-default navbar-fixed-top">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="#">IGPS</a>
+    </div>
+    <div class="collapse navbar-collapse">
+      <app-logged *ngIf="logged"></app-logged>
+      <app-unlogged *ngIf="!logged" (openModal)="openModal($event)"></app-unlogged>
+    </div>
+  </div>
+</nav>
+<div *ngIf="!logged">
+<modal id="log-in-modal">
+  <div class="modal">
+    <div class="modal-body">
+        <button (click)="closeModal('log-in-modal');">Close</button>
+    </div>
+  </div>
+  <div class="modal-background"></div>
+</modal>
+<modal *ngIf="!logged" id="register-modal">
+  <div class="modal">
+    <div class="modal-body">
+      <button (click)="closeModal('register-modal');">Close</button>
+    </div>
+  </div>
+  <div class="modal-background"></div>
+</modal>
+</div>

@@ -1,0 +1,54 @@
+{
+  "name": "igps",
+  "version": "0.0.0",
+  "license": "MIT",
+  "scripts": {
+    "build": "rimraf dist && webpack --bail"
+  },
+  "dependencies": {
+    "@angular/common": "^4.0.0",
+    "@angular/compiler": "^4.0.0",
+    "@angular/core": "^4.0.0",
+    "@angular/forms": "^4.0.0",
+    "@angular/http": "^4.0.0",
+    "@angular/platform-browser": "^4.0.0",
+    "@angular/platform-browser-dynamic": "^4.0.0",
+    "@angular/router": "^4.0.0",
+    "bootstrap": "3.3.7",
+    "core-js": "2.4.1",
+    "crypto-js": "3.1.9-1",
+    "es6-shim": "0.35.3",
+    "font-awesome": "4.7.0",
+    "intl": "1.2.5",
+    "jquery": "^3.2.1",
+    "reflect-metadata": "0.1.10",
+    "rxjs": "^5.1.0",
+    "underscore": "^1.8.3",
+    "zone.js": "^0.8.4"
+  },
+  "devDependencies": {
+    "@types/underscore": "^1.7.33",
+    "@types/jquery": "^2.0.39",
+    "@types/core-js": "0.9.41",
+    "@types/crypto-js": "3.1.33",
+    "@types/node": "~6.0.60",
+    "angular2-template-loader": "^0.6.0",
+    "awesome-typescript-loader": "^3.0.4",
+    "codelyzer": "~2.0.0",
+    "css-loader": "^0.28.3",
+    "extract-text-webpack-plugin": "2.0.0-beta.5",
+    "favicons-webpack-plugin": "0.0.7",
+    "file-loader": "^0.9.0",
+    "html-loader": "^0.4.3",
+    "html-webpack-plugin": "^2.16.1",
+    "null-loader": "^0.1.1",
+    "raw-loader": "^0.5.1",
+    "rimraf": "^2.5.4",
+    "style-loader": "^0.13.1",
+    "webpack": "^2.6.1"
+    "protractor": "~5.1.0",
+    "ts-node": "~2.0.0",
+    "tslint": "~4.5.0",
+    "typescript": "~2.2.0"
+  }
+}
