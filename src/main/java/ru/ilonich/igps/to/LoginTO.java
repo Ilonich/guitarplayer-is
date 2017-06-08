@@ -5,6 +5,14 @@ public class LoginTO implements TransferObject{
     private String login;
     private String password;
 
+    public LoginTO() {
+    }
+
+    public LoginTO(String login, String password) {
+        this.login = login;
+        this.password = password;
+    }
+
     public String getLogin() {
         return login;
     }

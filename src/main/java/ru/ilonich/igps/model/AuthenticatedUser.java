@@ -76,7 +76,6 @@ public class AuthenticatedUser implements UserDetails, CredentialsContainer {
     @Override
     public void eraseCredentials() {}
 
-
     public boolean isEmailVerificated() {
         return user.isEnabled();
     }

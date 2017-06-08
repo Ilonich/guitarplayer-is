@@ -1,0 +1,14 @@
+<form [formGroup]="loginForm">
+  <div class="form-group">
+    <label for="email" class="">Email</label>
+    <span *ngIf="formErrors.email">{{formErrors.email}}</span>
+    <input type="text" class="form-control" id="email" name="email" placeholder="example@mail.com"
+           formControlName="email">
+  </div>
+  <div class="form-group">
+    <label for="password" class="">Пароль</label>
+    <span *ngIf="formErrors.password">{{formErrors.password}}</span>
+    <input type="password" class="form-control" id="password" name="password"
+           formControlName="password">
+  </div>
+</form>

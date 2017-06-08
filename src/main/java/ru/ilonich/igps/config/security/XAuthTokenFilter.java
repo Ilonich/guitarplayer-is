@@ -66,10 +66,16 @@ public class XAuthTokenFilter extends GenericFilterBean {
                 //Check csrf token (prevent csrf attack)
                 Assert.isTrue(jwtCsrf.equals(csrfHeader));
                 this.authenticationService.authenticateByToken(login);
-                filterChain.doFilter(request,response);
+                filterChain.doFilter(request, response);
             } catch (HmacException | ParseException e) {
-                LOG.debug("Token authentication failed", e);
-                response.setStatus(403);
+                if (checkService.isAuthenticationRequired(request)) {
+                    LOG.debug("Token authentication failed", e);
+                    response.setStatus(403);
+                    response.getWriter().write(e.getMessage());
+                } else {
+                    this.authenticationService.authenticateAnonymous();
+                    filterChain.doFilter(request, response);
+                }
             }
         } else {
             filterChain.doFilter(request, response);

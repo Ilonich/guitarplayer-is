@@ -13,6 +13,13 @@ public interface SecuredRequestCheckService {
     boolean canVerify(HttpServletRequest request);
 
     /**
+     * Check request is for anonymous users too
+     * @param request http request
+     * @return true if required, false otherwise
+     */
+    boolean isAuthenticationRequired(HttpServletRequest request);
+
+    /**
      * Get the stored public secret (locally,remotely,cache,etc..)
      * @param iss issuer
      * @return secret key

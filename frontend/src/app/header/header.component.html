@@ -4,26 +4,61 @@
       <a class="navbar-brand" href="#">IGPS</a>
     </div>
     <div class="collapse navbar-collapse">
-      <app-logged *ngIf="logged"></app-logged>
-      <app-unlogged *ngIf="!logged" (openModal)="openModal($event)"></app-unlogged>
+      <ul *ngIf="state.logged" class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> {{state.username}} <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Профиль</a></li>
+            <li><a href="#">Сообщения</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Написать обзор</a></li>
+            <li><a href="#">Написать публикацию</a></li>
+            <li><a href="#">Объявление о продаже</a></li>
+            <li role="separator" class="divider"></li>
+            <li (click)="logout()"><a href="#">Выход</a></li>
+          </ul>
+        </li>
+      </ul>
+      <ul *ngIf="!state.logged" class="nav navbar-nav navbar-right">
+        <li (click)="openModal('log-in');"><a href="#">Вход</a></li>
+        <li (click)="openModal('register');"><a href="#">Регистрация</a></li>
+      </ul>
     </div>
   </div>
 </nav>
-<div *ngIf="!logged">
-<modal id="log-in-modal">
-  <div class="modal">
-    <div class="modal-body">
-        <button (click)="closeModal('log-in-modal');">Close</button>
+<div *ngIf="!state.logged">
+  <div id="log-in" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"></button>
+          <h4 class="modal-title">Вход</h4><span *ngIf="errors.login">{{errors.login}}</span>
+        </div>
+        <div class="modal-body">
+          <login-form #login></login-form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="button" (click)="auth(login.loginForm.value)" [disabled]="!login.loginForm.valid">Войти</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Зыкрыть</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="modal-background"></div>
-</modal>
-<modal *ngIf="!logged" id="register-modal">
-  <div class="modal">
-    <div class="modal-body">
-      <button (click)="closeModal('register-modal');">Close</button>
+  <div id="register" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"></button>
+          <h4 class="modal-title">Регистрация</h4>
+        </div>
+        <div class="modal-body">
+          <register-form #register></register-form>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary" type="button" (click)="reg(register.registerForm.value)" [disabled]="!register.registerForm.valid">Зарегистрироваться</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal">Зыкрыть</button>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="modal-background"></div>
-</modal>
 </div>

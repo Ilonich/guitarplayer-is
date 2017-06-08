@@ -5,6 +5,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.service.AuthenticationService;
+import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +17,7 @@ public class AuthenticationController {
     private AuthenticationService authenticationService;
 
     @PostMapping(value = "/authenticate", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public User authenticate(@RequestBody LoginTO loginTO, HttpServletResponse response) throws Exception{
+    public AuthTO authenticate(@RequestBody LoginTO loginTO, HttpServletResponse response) throws Exception{
         return authenticationService.authenticate(loginTO, response);
     }
 

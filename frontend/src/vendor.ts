@@ -8,7 +8,6 @@ import '@angular/forms';
 import '@angular/compiler';
 
 import 'jquery/dist/jquery';
-import 'underscore'
 import 'bootstrap/dist/js/bootstrap';
 
 import 'bootstrap/dist/css/bootstrap.min.css';

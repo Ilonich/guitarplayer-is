@@ -53,11 +53,9 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         web.ignoring()
-                .antMatchers("/scripts/**/*.{js}")
-                .antMatchers("/bower_components/**")
-                .antMatchers("/assets/**")
+                .antMatchers("*.{js}")
                 .antMatchers("*.{ico}")
-                .antMatchers("/views/**/*.{html}");
+                .antMatchers("*.{html}");
     }
 
     @Override

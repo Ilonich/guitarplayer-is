@@ -10,6 +10,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.ilonich.igps.UserTestData;
 import ru.ilonich.igps.model.User;
+import ru.ilonich.igps.to.AuthTO;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -21,8 +22,8 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Test
     public void authenticateMod() throws Exception {
         MvcResult result = authenticate("mod@igps.ru", "banme");
-        User user = readValue(result.getResponse().getContentAsString(), User.class);
-        UserTestData.USER_MODEL_MATCHER.assertEquals(user, UserTestData.moderator);
+        AuthTO user = readValue(result.getResponse().getContentAsString(), AuthTO.class);
+        assertEquals(user.getUsername(), UserTestData.moderator.getName());
     }
 
     @Test(expected = BadCredentialsException.class)

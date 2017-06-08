@@ -1,8 +1,6 @@
 package ru.ilonich.igps.service;
 
 import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Collections2;
-import com.google.common.collect.MapMaker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,7 +15,9 @@ import ru.ilonich.igps.config.security.misc.KeyPair;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
+import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
+import ru.ilonich.igps.utils.AnonymousUser;
 import ru.ilonich.igps.utils.HmacSigner;
 
 import javax.servlet.http.Cookie;
@@ -40,7 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
     @Override
-    public User authenticate(LoginTO loginTO, HttpServletResponse response) throws HmacException {
+    public AuthTO authenticate(LoginTO loginTO, HttpServletResponse response) throws HmacException {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginTO.getLogin(),loginTO.getPassword());
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -72,7 +72,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         response.setHeader(CSRF_CLAIM_HEADER.toString(), csrfId);
         response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
 
-        return user.getUser();
+        return new AuthTO(user.getUser().getName(), user.getUser().getRoles());
     }
 
     @Override
@@ -90,5 +90,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         UserDetails userDetails = userService.loadUserByUsername(email);
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
+    }
+
+    @Override
+    public void authenticateAnonymous() {
+        SecurityContextHolder.getContext().setAuthentication(AnonymousUser.ANONYMOUS_TOKEN);
     }
 }

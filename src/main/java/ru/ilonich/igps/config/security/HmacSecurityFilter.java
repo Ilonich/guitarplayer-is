@@ -82,11 +82,9 @@ public class HmacSecurityFilter extends GenericFilterBean {
 
                 if (digestClient.equals(digestServer)) {
                     LOG.debug("Request is valid, digest are matching");
-                    /*  Reserved for future TODO
                     Map<String,String> encodingClaim = Collections.singletonMap(ENCODING_CLAIM_PROPERTY.toString(), HMAC_SHA_256.toString());
                     HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, iss, JWT_TTL, encodingClaim);
                     response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
-                    */
                     filterChain.doFilter(wrappedRequest, response);
                 } else {
                     throw new HmacException("Digest are not matching! Client: " + digestClient + " / Server: " + digestServer);
@@ -95,9 +93,13 @@ public class HmacSecurityFilter extends GenericFilterBean {
                 filterChain.doFilter(wrappedRequest, response);
             }
         } catch (Exception e){
-            LOG.debug("Error while generating hmac token", e);
-            response.setStatus(403);
-            response.getWriter().write(e.getMessage());
+            if (checkService.isAuthenticationRequired(request)) {
+                LOG.debug("Error while generating hmac token", e);
+                response.setStatus(403);
+                response.getWriter().write(e.getMessage());
+            } else {
+                filterChain.doFilter(wrappedRequest, response);
+            }
         }
     }
 }

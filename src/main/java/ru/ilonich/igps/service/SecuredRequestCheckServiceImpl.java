@@ -28,6 +28,11 @@ public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckServic
     }
 
     @Override
+    public boolean isAuthenticationRequired(HttpServletRequest request) {
+        return !request.getRequestURI().contains("/api/public");
+    }
+
+    @Override
     public String getPublicSecret(String iss) {
         KeyPair keyPair = keyStore.getIfPresent(iss);
         return keyPair == null ? null : keyPair.getPublicKey();
