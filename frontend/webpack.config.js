@@ -2,7 +2,7 @@ var HtmlWebpackPlugin = require('html-webpack-plugin');
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var path = require('path');
-var _root = path.resolve(__dirname);
+var _root = path.resolve(__dirname, '..');
 
 function root(args) {
     args = Array.prototype.slice.call(arguments, 0);
@@ -16,7 +16,7 @@ module.exports = {
         'app': './src/main.ts'
     },
     output: {
-        path: root('dist'),
+        path: root('src', 'main', 'resources', 'static'),
         filename: '[name].js'
     },
     resolve: {
@@ -29,7 +29,7 @@ module.exports = {
                 loaders: [
                     {
                         loader: 'awesome-typescript-loader',
-                        options: { configFileName: root('tsconfig.json') }
+                        options: { configFileName: root('frontend', 'tsconfig.json') }
                     } , 'angular2-template-loader'
                 ]
             },
@@ -43,12 +43,12 @@ module.exports = {
             },
             {
                 test: /\.css$/,
-                exclude: root('src', 'app'),
+                exclude: root('frontend', 'src', 'app'),
                 loader: ExtractTextPlugin.extract({ fallbackLoader: 'style-loader', loader: 'css-loader?sourceMap' })
             },
             {
                 test: /\.css$/,
-                include: root('src', 'app'),
+                include: root('frontend', 'src', 'app'),
                 loader: 'raw-loader'
             }
         ]
@@ -57,7 +57,7 @@ module.exports = {
         new webpack.NoEmitOnErrorsPlugin(),
         new webpack.ContextReplacementPlugin(
             /angular(\\|\/)core(\\|\/)(esm(\\|\/)src|src)(\\|\/)linker/,
-            root('src'), // location of your src
+            root('frontend', 'src'), // location of your src
             {} // a map of your routes
         ),
         new webpack.optimize.CommonsChunkPlugin({

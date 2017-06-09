@@ -83,8 +83,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
         config.setJdbcUrl(url);
         config.setUsername(username);
         config.setPassword(password);
-        config.setConnectionTestQuery("SELECT 1 FROM users LIMIT 1");
-        config.setConnectionInitSql("SELECT 1 FROM users LIMIT 1");
+        config.setConnectionTestQuery("SELECT 1");
         //Метод org.postgresql.jdbc.PgConnection.get/setNetworkTimeout() ещё не реализован)
         config.setConnectionTimeout(20000);
         config.setValidationTimeout(20000);
