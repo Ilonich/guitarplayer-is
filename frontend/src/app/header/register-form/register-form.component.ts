@@ -24,9 +24,9 @@ export class RegisterFormComponent implements OnInit {
   validationMessages = {
     'username': {
       'required':        'Поле не должно быть пустым',
-      'minlength':       'Псевдоним не должен быть короче 2 символов',
-      'maxlength':       'Псевдоним не должен быть длиннее 24 символов',
-      'pattern':         'Повежливей плизки)))'
+      'minlength':       'Ник не должен быть короче 2 символов',
+      'maxlength':       'Ник не должен быть длиннее 24 символов',
+      'pattern':         'Ник не должен содержать переносы и длинные пробелы'
     },
     'email': {
       'required':        'Поле не должно быть пустым',
@@ -59,7 +59,7 @@ export class RegisterFormComponent implements OnInit {
         Validators.required,
         Validators.minLength(2),
         Validators.maxLength(24),
-
+        Validators.pattern(/^((?![\t]|[\v]|[\r]|[\n]|[\f]|  )[\s\S])*$/i)
       ]
       ],
       'email': ['', [
@@ -93,7 +93,7 @@ export class RegisterFormComponent implements OnInit {
         this.formErrors[field] = '';
         const control = form.get(field);
 
-        if (control && control.dirty && !control.valid) {
+        if (control && control.touched && control.dirty && !control.valid) {
           const messages = this.validationMessages[field];
           for (const key in control.errors) {
             if (key !== null) {
@@ -102,7 +102,7 @@ export class RegisterFormComponent implements OnInit {
           }
         }
 
-        if (control && control.dirty && form.errors && control.valid) {
+        if (control && control.touched && control.dirty && form.errors && control.valid) {
           for (const key in form.errors) {
             if (key !== null) {
               const messages = this.validationMessages[field];
@@ -112,7 +112,6 @@ export class RegisterFormComponent implements OnInit {
             }
           }
         }
-
       }
     }
   }

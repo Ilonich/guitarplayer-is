@@ -1,22 +1,22 @@
 <form [formGroup]="registerForm">
-  <div class="form-group">
-    <label for="username">Псевдоним</label>
-    <span *ngIf="formErrors.username">{{formErrors.username}}</span>
+  <div class="form-group" [ngClass]="{'has-success': username.valid, 'has-error': username.dirty && !username.valid}">
+    <label for="username">Ник </label><i *ngIf="username.valid" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
+    <span class="pull-right" *ngIf="formErrors.username">{{formErrors.username}}</span>
     <input type="text" class="form-control" id="username" formControlName="username">
   </div>
-  <div class="form-group">
-    <label for="email">Email</label>
-    <span *ngIf="formErrors.email">{{formErrors.email}}</span>
+  <div class="form-group" [ngClass]="{'has-success': email.valid, 'has-error': email.dirty && !email.valid}">
+    <label for="email">Email </label><i *ngIf="email.valid" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
+    <span class="pull-right" *ngIf="formErrors.email">{{formErrors.email}}</span>
     <input type="text" class="form-control" id="email" placeholder="example@mail.com" formControlName="email">
   </div>
-  <div class="form-group">
-    <label for="password">Пароль</label>
-    <span *ngIf="formErrors.password">{{formErrors.password}}</span>
-    <input type="password" class="form-control" id="password" placeholder="Не менее 6 символов" formControlName="password">
+  <div class="form-group" [ngClass]="{'has-success': password.valid, 'has-error': password.dirty && !password.valid}">
+    <label for="password">Пароль </label><i *ngIf="password.valid" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
+    <span class="pull-right" *ngIf="formErrors.password">{{formErrors.password}}</span>
+    <input type="password" class="form-control" id="password" placeholder="Не менее 5 символов" formControlName="password">
   </div>
-  <div class="form-group">
-    <label for="passwordcopy">Повторите пароль</label>
-    <span *ngIf="formErrors.passwordcopy">{{formErrors.passwordcopy}}</span>
+  <div class="form-group" [ngClass]="{'has-success': passwordcopy.valid && !registerForm.errors, 'has-error': passwordcopy.dirty && !passwordcopy.valid && registerForm.errors}">
+    <label for="passwordcopy">Повторите пароль </label><i *ngIf="passwordcopy.valid && !registerForm.errors" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
+    <span class="pull-right" *ngIf="formErrors.passwordcopy">{{formErrors.passwordcopy}}</span>
     <input type="password" class="form-control" id="passwordcopy" formControlName="passwordcopy">
   </div>
 </form>

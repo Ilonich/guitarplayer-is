@@ -1,15 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
 import { LoginState } from '../classes/login-state';
-import { LoggingResolverService } from '../services/logging-resolver.service';
+import { LoginingResolverService } from '../services/logining-resolver.service';
+import { RegisterFormComponent } from './register-form/register-form.component';
+import { LoginFormComponent } from './login-form/login-form.component';
+import {AuthenticationService} from '../services/authentication.service';
 declare var jQuery: any;
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css'],
-  viewProviders: [ LoggingResolverService ]
+  viewProviders: [ LoginingResolverService ]
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, AfterViewInit {
+
+  @ViewChild(LoginFormComponent) private login: LoginFormComponent;
+  @ViewChild(RegisterFormComponent) private register: RegisterFormComponent;
+
   state: LoginState;
 
   errors = {
@@ -22,48 +29,73 @@ export class HeaderComponent implements OnInit {
       '404':        'Не в ту степь',
       '403':        'Не верный логин или пароль',
       '500':        'Сервер подавился',
-      '200':        'HMAC-token потерялся'
-    },
-    'register': {
-      'required':        'Поле не должно быть пустым',
-      'minlength':       'Пароль не должен быть короче 5 символов',
-      'maxlength':       'Пароль не должен быть длиннее 24 символов',
     }
   };
 
-
-  constructor(private logger: LoggingResolverService) {
+  constructor(private logger: LoginingResolverService, private authService: AuthenticationService) {
     this.logger.stateFeed.subscribe(loginState => {
+      console.log('STATE CHANGED');
+      this.closeModals();
       this.state = loginState;
     });
   }
 
-  ngOnInit() {
+  ngOnInit() {}
 
+  ngAfterViewInit() {
+    setTimeout(() => this.canLogin = () => this.login.loginForm.valid, 0);
+    setTimeout(() => this.canRegister = () => this.register.registerForm.valid, 0);
   }
 
-  auth(pair: any): void {
-    this.logger.login(pair).subscribe(
+  auth(): void {
+    this.authService.authenticate(this.login.loginForm.value).subscribe(
       empty => {
-        this.errors['login'] = '';
+        this.errors['login'] = empty;
+        console.log('auth complete');
       },
       error => {
+        console.log(error);
+        console.log(error.status);
         const loginError = this.errorMessages['login'];
-        this.errors['login'] = loginError[error.status.toString()];
+        this.errors['login'] = loginError[error.status];
         console.log(this.errors['login']);
     });
   }
 
-  reg(ass: any): void {
-    console.log(ass);
+  logout(): void {
+    this.authService.logout().subscribe(
+        message => {
+          console.log(message);
+        },
+        error => {
+          console.log(error);
+        }
+    );
+  }
+
+  reg(): void {
+    console.log(this.register.registerForm.value);
+  }
+
+  closeModals(): void {
+    jQuery('.modal').modal('hide');
   }
 
   openModal(id: string): void {
     jQuery('#'.concat(id)).modal();
+    this.login.loginForm.reset();
+    this.register.registerForm.reset();
+    this.errors.login = '';
+    this.errors.register = '';
   }
 
-  logout(): void {
-    console.log('LOGOUT');
+  canLogin(): Boolean {
+    return false;
   }
+
+  canRegister(): Boolean {
+    return false;
+  }
+
 
 }

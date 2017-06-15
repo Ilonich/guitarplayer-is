@@ -1,14 +1,12 @@
 <form [formGroup]="loginForm">
-  <div class="form-group">
-    <label for="email" class="">Email</label>
-    <span *ngIf="formErrors.email">{{formErrors.email}}</span>
-    <input type="text" class="form-control" id="email" name="email" placeholder="example@mail.com"
-           formControlName="email">
+  <div class="form-group" [ngClass]="{'has-success': email.valid, 'has-error': email.dirty && !email.valid}">
+    <label for="email" class="">Email</label><i *ngIf="email.valid" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
+    <span class="pull-right" *ngIf="formErrors.email">{{formErrors.email}}</span>
+    <input type="text" class="form-control" id="email" name="email" placeholder="example@mail.com" formControlName="email">
   </div>
-  <div class="form-group">
-    <label for="password" class="">Пароль</label>
-    <span *ngIf="formErrors.password">{{formErrors.password}}</span>
-    <input type="password" class="form-control" id="password" name="password"
-           formControlName="password">
+  <div class="form-group" [ngClass]="{'has-success': password.valid, 'has-error': password.dirty && !password.valid}">
+    <label for="password" class="">Пароль</label><i *ngIf="password.valid" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
+    <span class="pull-right" *ngIf="formErrors.password">{{formErrors.password}}</span>
+    <input type="password" class="form-control" id="password" name="password" formControlName="password">
   </div>
 </form>

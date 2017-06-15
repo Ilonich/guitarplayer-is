@@ -15,7 +15,7 @@ public class PasswordUtil {
     }
 
     public static String encode(String newPassword) {
-        if (StringUtils.isEmpty(newPassword)) {
+        if (!StringUtils.hasText(newPassword)) {
             return null;
         }
         if (isEncoded(newPassword)) {
