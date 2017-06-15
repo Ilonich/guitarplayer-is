@@ -55,7 +55,6 @@ export class HeaderComponent implements OnInit, AfterViewInit {
       },
       error => {
         console.log(error);
-        console.log(error.status);
         const loginError = this.errorMessages['login'];
         this.errors['login'] = loginError[error.status];
         console.log(this.errors['login']);
@@ -96,6 +95,4 @@ export class HeaderComponent implements OnInit, AfterViewInit {
   canRegister(): Boolean {
     return false;
   }
-
-
 }

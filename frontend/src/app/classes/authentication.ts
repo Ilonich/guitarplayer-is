@@ -39,4 +39,9 @@ export class Authentication {
     return undefined !== this._roles.find( s => s === role);
   }
 
+  public static fromJsonString(json: string): Authentication {
+    const obj = JSON.parse(json);
+    return new Authentication(obj._username, obj._email, obj._publicKey, obj._encodingLvl, obj._csrf, obj._roles);
+  }
+
 }

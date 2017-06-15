@@ -18,6 +18,12 @@ export class TokenHttpInterceptor extends Http {
     super(backend, defaultOptions);
   }
 
+  public switchState(auth?: Authentication): void {
+    console.log('switch state');
+    console.log(auth);
+    this.logining.resolve(auth);
+  }
+
   request(url: string | Request, options?: RequestOptionsArgs): Observable<Response> {
     return super.request(url, options);
   }
@@ -36,16 +42,6 @@ export class TokenHttpInterceptor extends Http {
 
   delete(url: string, options?: RequestOptionsArgs): Observable<Response> {
     return super.delete(url, this.getRequestOptionArgs(url, 'DELETE', options));
-  }
-
-  public switchState(auth?: Authentication): void {
-    console.log('switch state ' + JSON.stringify(auth));
-    console.log(auth);
-    if (auth == null) {
-      this.logining.erase();
-    } else {
-      this.logining.login(auth);
-    }
   }
 
   private getRequestOptionArgs(url: string, method: string, options?: RequestOptionsArgs, body?: any): RequestOptionsArgs {

@@ -1,54 +1,48 @@
-import {Injectable, OnInit} from '@angular/core';
-import {LoginState} from '../classes/login-state';
-import {Authentication} from '../classes/authentication';
-import { Observable } from 'rxjs/Observable';
-import {Observer} from 'rxjs/Observer';
+import { Injectable } from '@angular/core';
+import { LoginState } from '../classes/login-state';
+import { Authentication } from '../classes/authentication';
+import { BehaviorSubject } from 'rxjs/Rx';
 
 const NO_LOGIN: LoginState = new LoginState(false, null);
 
 @Injectable()
 export class LoginingResolverService {
   private storage: Storage;
-  stateFeed: Observable<LoginState>;
-  private stateObserver: Observer<LoginState>;
+  stateFeed: BehaviorSubject<LoginState>;
 
   constructor() {
     this.storage = window.localStorage;
-    this.stateFeed = new Observable<LoginState>(observer => {
-      this.stateObserver = observer;
-      console.log(this.stateObserver);
-      this.refresh();
-    });
-    /*setInterval( () => this.stateObserver.next(new LoginState(true, 'ABRAHAM')), 15000);*/
+    const auth = this.getAuthentication();
+    this.stateFeed = new BehaviorSubject<LoginState>(auth !== null ? new LoginState(true, auth.username) : NO_LOGIN);
+    /*setInterval( () => this.stateFeed.next(new LoginState(true, 'ABRAHAM')), 15000);*/
   }
 
   getAuthentication(): Authentication {
-    return JSON.parse(this.storage.getItem('igpsAcc'));
+    const json = this.storage.getItem('igpsAcc');
+    return json !== null ? Authentication.fromJsonString(json) : null;
   }
 
-  login(auth: Authentication): void {
-    console.log(auth);
-    this.storage.setItem('igpsAcc', JSON.stringify(auth));
-    console.log(this.stateObserver);
-    this.refresh();
-  }
-
-  erase(): void {
-    this.storage.removeItem('igpsAcc');
-    this.stateObserver.next(NO_LOGIN);
+  resolve(auth?: Authentication): void {
+    if (auth == null) {
+      this.storage.removeItem('igpsAcc');
+      this.refresh();
+      console.log('REFRESH AFTER ERASE');
+    } else {
+      this.storage.setItem('igpsAcc', JSON.stringify(auth));
+      console.log('REFRESH AFTER LOGIN');
+      this.refresh();
+    }
   }
 
   refresh(): void {
+    console.log('REFRESHING');
     const auth: Authentication = this.getAuthentication();
     if (auth !== null) {
-      console.log(auth.username);
-      console.log('LOGIN');
-      console.log(this.stateObserver);
-      this.stateObserver.next(new LoginState(true, auth.username));
+      console.log('LOGIN ' + auth.username);
+      this.stateFeed.next(new LoginState(true, auth.username));
     } else {
       console.log('NO LOGIN');
-      console.log(this.stateObserver);
-      this.stateObserver.next(NO_LOGIN);
+      this.stateFeed.next(NO_LOGIN);
     }
   }
 }

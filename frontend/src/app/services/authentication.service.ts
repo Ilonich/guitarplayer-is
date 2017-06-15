@@ -15,13 +15,10 @@ export class AuthenticationService {
     return this.http.post('/api/authenticate', JSON.stringify(loginTo))
       .map(response => {
           const authTo = response.json();
-          console.log(authTo);
           const headers = response.headers;
-          console.log(headers);
         if (headers.has('X-TokenAccess')) {
-
           this.http.switchState(new Authentication(authTo.username, loginTo.login,
-            headers.get('X-Secret'), headers.get('WWW-Authenticate'), headers.get('X-HMAC-CSRF'), authTo.roles));
+              headers.get('X-Secret'), headers.get('WWW-Authenticate'), headers.get('X-HMAC-CSRF'), authTo.roles));
           return '';
         } else {
           return 'Error';
