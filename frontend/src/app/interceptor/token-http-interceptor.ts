@@ -64,7 +64,8 @@ export class TokenHttpInterceptor extends Http {
           message = method + fullUrl + date;
         }
         console.log(auth.publicKey);
-        console.log('MESSAGE='+ HmacSHA256(message, auth.publicKey));
+        console.log('MESSAGE='+ message);
+        console.log(auth.encodingLvl);
         const encodingLvl = auth.encodingLvl;
         if (encodingLvl === 'HmacSHA256') {
           options.headers.append('X-Digest', HmacSHA256(message, auth.publicKey));

@@ -1,21 +1,29 @@
-import {Component, OnInit, ViewChild, AfterViewInit} from '@angular/core';
+import { Component, AfterViewInit, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
 import { LoginState } from '../classes/login-state';
 import { LoginingResolverService } from '../services/logining-resolver.service';
 import { RegisterFormComponent } from './register-form/register-form.component';
 import { LoginFormComponent } from './login-form/login-form.component';
-import {AuthenticationService} from '../services/authentication.service';
+import { AuthenticationService } from '../services/authentication.service';
+import { Observable } from 'rxjs/Rx';
 declare var jQuery: any;
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.css'],
-  viewProviders: [ LoginingResolverService ]
+  styleUrls: ['./header.component.css']
 })
-export class HeaderComponent implements OnInit, AfterViewInit {
+export class HeaderComponent implements AfterViewInit {
 
-  @ViewChild(LoginFormComponent) private login: LoginFormComponent;
-  @ViewChild(RegisterFormComponent) private register: RegisterFormComponent;
+  @ViewChildren(LoginFormComponent)
+  public someLoginForms: QueryList<LoginFormComponent>;
+  
+  @ViewChildren(RegisterFormComponent)
+  public someRegisterForms: QueryList<RegisterFormComponent>;
+  
+  private loginComp: LoginFormComponent;
+  private registerComp: RegisterFormComponent;
+  
+  private formsDetector: Observable<any>;
 
   state: LoginState;
 
@@ -32,23 +40,25 @@ export class HeaderComponent implements OnInit, AfterViewInit {
     }
   };
 
-  constructor(private logger: LoginingResolverService, private authService: AuthenticationService) {
+  constructor(private logger: LoginingResolverService, private authService: AuthenticationService, private cdref: ChangeDetectorRef) {
     this.logger.stateFeed.subscribe(loginState => {
-      console.log('STATE CHANGED');
+      console.log('SUBSCRIPTION INVOKE');
       this.closeModals();
       this.state = loginState;
     });
+    this.logger.stateFeed.connect();
   }
 
-  ngOnInit() {}
-
   ngAfterViewInit() {
-    setTimeout(() => this.canLogin = () => this.login.loginForm.valid, 0);
-    setTimeout(() => this.canRegister = () => this.register.registerForm.valid, 0);
+    this.initForms();
+    this.formsDetector = Observable.merge(this.someLoginForms.changes, this.someRegisterForms.changes);
+    this.formsDetector.subscribe(() => {
+      this.initForms();
+    });
   }
 
   auth(): void {
-    this.authService.authenticate(this.login.loginForm.value).subscribe(
+    this.authService.authenticate(this.loginComp.loginForm.value).subscribe(
       empty => {
         this.errors['login'] = empty;
         console.log('auth complete');
@@ -73,7 +83,7 @@ export class HeaderComponent implements OnInit, AfterViewInit {
   }
 
   reg(): void {
-    console.log(this.register.registerForm.value);
+    console.log(this.registerComp.registerForm.value);
   }
 
   closeModals(): void {
@@ -82,8 +92,8 @@ export class HeaderComponent implements OnInit, AfterViewInit {
 
   openModal(id: string): void {
     jQuery('#'.concat(id)).modal();
-    this.login.loginForm.reset();
-    this.register.registerForm.reset();
+    this.loginComp.loginForm.reset();
+    this.registerComp.registerForm.reset();
     this.errors.login = '';
     this.errors.register = '';
   }
@@ -94,5 +104,15 @@ export class HeaderComponent implements OnInit, AfterViewInit {
 
   canRegister(): Boolean {
     return false;
+  }
+
+  private initForms(): void {
+    if (this.someLoginForms.length === 1 && this.someRegisterForms.length === 1) {
+      this.loginComp = this.someLoginForms.first;
+      this.registerComp = this.someRegisterForms.first;
+      setTimeout(() => this.canLogin = () => this.loginComp.loginForm.valid, 0);
+      setTimeout(() => this.canRegister = () => this.registerComp.registerForm.valid, 0);
+      this.cdref.detectChanges(); //ExpressionChangedAfterItHasBeenCheckedError
+    }
   }
 }

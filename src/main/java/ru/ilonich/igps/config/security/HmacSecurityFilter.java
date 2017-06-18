@@ -77,8 +77,9 @@ public class HmacSecurityFilter extends GenericFilterBean {
 
                 //Digest are calculated using a public shared secret
                 String digestServer = HmacSigner.encodeMac(publicSecret, message, encoding);
-                LOG.debug("\nHMAC JWT: {}\nHMAC url digest: {}\nHMAC Message server: {}\nHMAC Secret server: {}\nHMAC Digest server: {}\nHMAC Digest client: {}",
-                        jwtCookieValue, url, message, publicSecret.trim(), digestServer, digestClient);
+
+                LOG.info("\nHMAC JWT: {}\nHMAC url digest: {}\nHMAC Message server: {}\nHMAC Secret server: {}\nHMAC Digest server: {}\nHMAC Digest client: {}\nHMAC encoding: {}",
+                        jwtCookieValue, url, message, publicSecret, digestServer, digestClient, encoding);
 
                 if (digestClient.equals(digestServer)) {
                     LOG.debug("Request is valid, digest are matching");

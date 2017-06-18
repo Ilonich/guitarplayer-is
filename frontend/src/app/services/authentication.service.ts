@@ -8,7 +8,9 @@ import { TokenHttpInterceptor } from '../interceptor/token-http-interceptor';
 @Injectable()
 export class AuthenticationService {
 
-  constructor(private http: TokenHttpInterceptor) { }
+  constructor(private http: TokenHttpInterceptor) {
+      console.log('AuthenticationService CREATED');
+  }
 
   public authenticate(pair: any): Observable<string> {
     const loginTo: LoginTo = new LoginTo(pair.email, pair.password);
