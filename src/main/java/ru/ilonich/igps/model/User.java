@@ -15,13 +15,14 @@ import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.validation.constraints.Pattern;
 import java.util.*;
 
 @Entity
 @Table(name = "users")
 @Access(AccessType.FIELD)
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class User implements Persistable<Integer> {
+public class User implements HasId {
     public static final int START_SEQ = 100000;
 
     @Id
@@ -33,13 +34,10 @@ public class User implements Persistable<Integer> {
     @Column(name = "email", nullable = false, unique = true)
     @Email
     @NotBlank
-    @SafeHtml
     private String email;
 
     @Column(name = "password", nullable = false)
-    @NotBlank(message = "Пароль должен содержать не менее 5 символов")
-    @Length(min = 5, max = 100, message = "Пароль должен содержать не менее 5 символов")
-    @SafeHtml
+    @NotBlank
     private String password;
 
     @Column(name = "enabled", insertable = false)
@@ -58,9 +56,10 @@ public class User implements Persistable<Integer> {
 
     @Column(name = "name", nullable = false, unique = true, updatable = false)
     @NotBlank
-    @Length(max = 30)
     @SafeHtml
-    private String name;
+    @Length(min = 2, max = 24)
+    @Pattern(regexp = "^((?![\\t]|[\\v]|[\\r]|[\\n]|[\\f]|  )[\\s\\S])*$")
+    private String username;
 
     @Column(name = "bio")
     @Length(max = 1000)
@@ -103,7 +102,7 @@ public class User implements Persistable<Integer> {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "voter")
     private Set<CommentVote> votesForComments;
 
-    public User(int id, String email, String password,
+    public User(Integer id, String email, String password,
                 boolean enabled, boolean decent,
                 String name, String userBio,
                 int rating, long registered,
@@ -114,7 +113,7 @@ public class User implements Persistable<Integer> {
         this.password = password;
         this.enabled = enabled;
         this.decent = decent;
-        this.name = name;
+        this.username = name;
         this.userBio = userBio;
         this.rating = rating;
         this.registered = registered;
@@ -137,12 +136,12 @@ public class User implements Persistable<Integer> {
         return (getId() == null);
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String name) {
+        this.username = name;
     }
 
     public String getEmail() {

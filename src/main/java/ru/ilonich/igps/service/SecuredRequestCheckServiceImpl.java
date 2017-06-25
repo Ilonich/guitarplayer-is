@@ -24,7 +24,7 @@ public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckServic
 
     @Override
     public boolean canVerify(HttpServletRequest request) {
-        return request.getRequestURI().contains("/api") && !request.getRequestURI().contains("/api/authenticate");
+        return request.getRequestURI().contains("/api") && !(request.getRequestURI().contains("/api/authenticate") || request.getRequestURI().contains("/api/register"));
     }
 
     @Override

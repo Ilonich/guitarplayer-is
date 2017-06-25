@@ -10,7 +10,7 @@ import java.util.Set;
 @Entity
 @Table(name = "dialogs")
 @Access(AccessType.FIELD)
-public class Dialog implements Persistable<Integer> {
+public class Dialog implements HasId {
     public static final int START_SEQ = 10000;
 
     @Id

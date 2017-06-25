@@ -13,7 +13,7 @@ public class UserTestData {
     public static final ModelMatcher<User> USER_MODEL_MATCHER = ModelMatcher.of(User.class, ((expected, actual) -> expected == actual ||
             (Objects.equals(expected.getId(), actual.getId()) &&
             Objects.equals(expected.getEmail(), actual.getEmail()) &&
-            Objects.equals(expected.getName(), actual.getName()) &&
+            Objects.equals(expected.getUsername(), actual.getUsername()) &&
             Objects.equals(expected.getPassword(), actual.getPassword()) &&
             Objects.equals(expected.isDecent(), actual.isDecent()) &&
             Objects.equals(expected.isEnabled(), actual.isEnabled()) &&

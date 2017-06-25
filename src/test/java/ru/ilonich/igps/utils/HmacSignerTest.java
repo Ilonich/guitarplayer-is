@@ -1,5 +1,6 @@
 package ru.ilonich.igps.utils;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -14,7 +15,14 @@ import java.util.Map;
 import static org.junit.Assert.*;
 
 @RunWith(JUnit4.class)
-public class HmacSignerTest extends AbstractPrintTotalResultsTest {
+public class HmacSignerTest {
+
+    @Test
+    public void test() {
+        String request = "asdasdasd/api/register";
+        Assert.assertTrue(request.contains("/api") && !(request.contains("/api/authenticate") || request.contains("/api/register")));
+    }
+
     @Test
     public void getSignedToken() throws Exception {
         HmacToken hmacToken = HmacSigner.getSignedToken(HmacSigner.generateSecret(), "yolo@cc.com", 20, Collections.singletonMap("claim", "something"));

@@ -11,7 +11,7 @@ import javax.persistence.*;
 
 @MappedSuperclass
 @Access(AccessType.FIELD)
-public class ItemsBaseEntity implements Persistable<Integer> {
+public class ItemsBaseEntity implements HasId {
     public static final int START_SEQ = 100000;
 
     @Id

@@ -15,7 +15,7 @@ import java.util.Set;
 @Entity
 @Table(name = "posts")
 @Access(AccessType.FIELD)
-public class Post implements Persistable<Integer> {
+public class Post implements HasId {
 
     public static final int START_SEQ = 1;
 

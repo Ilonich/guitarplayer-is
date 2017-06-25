@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.ilonich.igps.utils.AbstractPrintTotalResultsTest;
 import ru.ilonich.igps.UserTestData;
 import ru.ilonich.igps.config.data.JpaConfig;
 import ru.ilonich.igps.model.AuthenticatedUser;
@@ -16,7 +15,7 @@ import static ru.ilonich.igps.UserTestData.USER_MODEL_MATCHER;
 
 @SpringBootTest(classes = JpaConfig.class)
 @RunWith(SpringRunner.class)
-public class UserServiceImplTest extends AbstractPrintTotalResultsTest {
+public class UserServiceImplTest {
 
     @Autowired
     private UserService userService;

@@ -1,5 +1,6 @@
 package ru.ilonich.igps.to;
 
+import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.model.enumerations.Role;
 
 import java.util.Collection;
@@ -32,5 +33,9 @@ public class AuthTO implements TransferObject {
 
     public void setRoles(Set<Role> roles) {
         this.roles = Collections.unmodifiableCollection(roles);
+    }
+
+    public static AuthTO fromUser(User user){
+        return new AuthTO(user.getUsername(), user.getRoles());
     }
 }

@@ -16,4 +16,10 @@ public class UserRepositoryImpl implements UserRepository {
         return crudUser.findByEmail(email.toLowerCase());
     }
 
+    @Override
+    public User save(User user) {
+        return crudUser.save(user);
+    }
+
+
 }

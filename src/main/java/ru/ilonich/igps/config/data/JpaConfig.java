@@ -6,6 +6,7 @@ import com.google.common.cache.LoadingCache;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.cache.ehcache.EhCacheRegionFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -14,6 +15,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 import ru.ilonich.igps.config.security.misc.KeyPair;
 import ru.ilonich.igps.utils.HmacSigner;
+import ru.ilonich.igps.utils.JpaUtil;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -67,6 +70,12 @@ public class JpaConfig implements TransactionManagementConfigurer {
     private String secondLvl;
     @Value("${hibernate.query-cache}")
     private String queryCache;
+
+    //https://www.mkyong.com/spring/spring-is-not-working-in-value/
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertyConfig() {
+        return new PropertySourcesPlaceholderConfigurer();
+    }
 
     @Bean
     public DataSource dataSource(){
@@ -139,6 +148,11 @@ public class JpaConfig implements TransactionManagementConfigurer {
         factoryBean.setConfigLocation(new ClassPathResource("cache/ehcache.xml"));
         factoryBean.setShared(true);
         return factoryBean;
+    }
+
+    @Bean
+    public JpaUtil jpaUtil(){
+        return new JpaUtil(configureEntityManagerFactory().getObject().createEntityManager());
     }
 
     @Bean

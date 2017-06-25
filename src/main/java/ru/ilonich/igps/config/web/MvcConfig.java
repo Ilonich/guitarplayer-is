@@ -1,17 +1,22 @@
 package ru.ilonich.igps.config.web;
 
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.*;
+import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import ru.ilonich.igps.config.data.misc.JsonMapper;
 import ru.ilonich.igps.config.security.SSConfig;
+import ru.ilonich.igps.utils.MessageUtil;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
@@ -62,5 +67,27 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         executor.setKeepAliveSeconds(20);
         executor.setAllowCoreThreadTimeOut(true);
         return executor;
+    }
+
+    @Bean
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("i18n/backend-messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
+    }
+
+    @Bean
+    public LocaleResolver localeResolver(){
+        CookieLocaleResolver resolver = new CookieLocaleResolver();
+        resolver.setDefaultLocale(MessageUtil.RU_LOCALE);
+        resolver.setCookieName("locale");
+        resolver.setCookieMaxAge(-1);
+        return resolver;
+    }
+
+    @Bean
+    public MessageUtil messageUtil(){
+        return new MessageUtil(messageSource());
     }
 }

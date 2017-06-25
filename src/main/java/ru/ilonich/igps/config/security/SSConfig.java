@@ -63,6 +63,7 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers("/api/authenticate").anonymous()
+                .antMatchers("/api/register").anonymous()
                 .antMatchers("/api/public/**").anonymous()
                 .antMatchers("/").anonymous()
                 .antMatchers("/favicon.ico").anonymous()

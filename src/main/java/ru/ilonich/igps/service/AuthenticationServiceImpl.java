@@ -17,6 +17,7 @@ import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
+import ru.ilonich.igps.to.RegisterTO;
 import ru.ilonich.igps.utils.AnonymousUser;
 import ru.ilonich.igps.utils.HmacSigner;
 
@@ -72,7 +73,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         response.setHeader(CSRF_CLAIM_HEADER.toString(), csrfId);
         response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
 
-        return new AuthTO(user.getUser().getName(), user.getUser().getRoles());
+        return AuthTO.fromUser(user.getUser());
+    }
+
+    @Override
+    public User register(RegisterTO registerTO) {
+        return userService.save(registerTO.createUser());
     }
 
     @Override

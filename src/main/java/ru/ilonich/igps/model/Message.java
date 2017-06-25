@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 @Table(name = "messages")
 @Access(AccessType.FIELD)
-public class Message implements Persistable<Integer> {
+public class Message implements HasId {
     public static final int START_SEQ = 10000;
 
     @Id

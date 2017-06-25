@@ -36,6 +36,7 @@ export class RegisterFormComponent implements OnInit {
       'required':        'Поле не должно быть пустым',
       'minlength':       'Пароль не должен быть короче 5 символов',
       'maxlength':       'Пароль не должен быть длиннее 24 символов',
+      'pattern':         'Пароль не должен содержать переносы пробелы'
     },
     'passwordcopy': {
       'required':        'Поле не должно быть пустым',
@@ -71,6 +72,7 @@ export class RegisterFormComponent implements OnInit {
         Validators.required,
         Validators.minLength(5),
         Validators.maxLength(24),
+        Validators.pattern(/^((?![\t]|[\v]|[\r]|[\n]|[\f]| )[\s\S])*$/i)
       ]
       ],
       'passwordcopy': ['', [

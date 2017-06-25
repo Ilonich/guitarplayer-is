@@ -13,7 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "comments")
 @Access(AccessType.FIELD)
-public class Comment implements Persistable<Integer> {
+public class Comment implements HasId {
     public static final int START_SEQ = 10000;
 
     @Id
