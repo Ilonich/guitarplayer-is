@@ -16,6 +16,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.text.ParseException;
 import java.time.*;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.Map;
 import java.util.UUID;
@@ -68,7 +69,7 @@ public class HmacSigner {
      * Sign a Json Web Token
      * @param secret Random secret in base 64
      * @param jwtID random jwtID
-     * @param ttl time to live (in seconds)
+     * @param ttl time to live (in seconds)!
      * @param iss issuer
      * @param claims List of custom claims
      * @return A signed json web token
@@ -81,7 +82,7 @@ public class HmacSigner {
                 .jwtID(jwtID)
                 .expirationTime(
                         Date.from(OffsetDateTime.now(ZoneId.systemDefault())
-                                .plus(Duration.ofHours(ttl)).toInstant()))
+                                .plus(Duration.ofSeconds(ttl)).toInstant()))
                 .issuer(iss);
         if(claims != null && !claims.isEmpty()) {
             for(Map.Entry<String,String> entry : claims.entrySet()){
@@ -130,6 +131,15 @@ public class HmacSigner {
         } else {
             return false;
         }
+    }
+
+    public static int getTimeLeftSeconds(String jwtString) throws ParseException {
+        JWT jwt = JWTParser.parse(jwtString);
+        if(jwt.getJWTClaimsSet() != null && jwt.getJWTClaimsSet().getExpirationTime() != null) {
+            OffsetDateTime expiries = OffsetDateTime.ofInstant(jwt.getJWTClaimsSet().getExpirationTime().toInstant(), ZoneId.systemDefault());
+            return (int) OffsetDateTime.now().until(expiries, ChronoUnit.SECONDS);
+        }
+        return 0;
     }
 
     /**

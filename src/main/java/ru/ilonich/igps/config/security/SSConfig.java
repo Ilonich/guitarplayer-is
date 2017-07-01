@@ -1,6 +1,5 @@
 package ru.ilonich.igps.config.security;
 
-import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import ru.ilonich.igps.config.data.JpaConfig;
-import ru.ilonich.igps.config.security.misc.KeyPair;
 import ru.ilonich.igps.service.AuthenticationService;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
 import ru.ilonich.igps.service.UserService;
@@ -34,9 +32,6 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private SecuredRequestCheckService securedRequestCheckService;
-
-    @Autowired
-    private LoadingCache<String, KeyPair> keyStore;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -95,7 +90,7 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
     }
 
     private XAuthTokenFilterConfigurer authTokenConfigurer(){
-        return new XAuthTokenFilterConfigurer(authenticationService, keyStore, securedRequestCheckService);
+        return new XAuthTokenFilterConfigurer(authenticationService, securedRequestCheckService);
     }
 
 }

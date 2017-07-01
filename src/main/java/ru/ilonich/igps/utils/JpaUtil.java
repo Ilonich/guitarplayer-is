@@ -4,17 +4,17 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 
 import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 public class JpaUtil {
 
-    private EntityManager em;
+    @PersistenceContext
+    private EntityManager entityManager;
 
-    public JpaUtil(EntityManager em) {
-        this.em = em;
-    }
+    public JpaUtil() {}
 
     public void clear2ndLevelHibernateCache() {
-        Session s = (Session) em.getDelegate();
+        Session s = (Session) entityManager.getDelegate();
         SessionFactory sf = s.getSessionFactory();
         sf.getCache().evictQueryRegions();
         sf.getCache().evictDefaultQueryRegion();

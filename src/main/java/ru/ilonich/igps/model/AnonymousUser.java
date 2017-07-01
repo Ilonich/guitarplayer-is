@@ -1,4 +1,4 @@
-package ru.ilonich.igps.utils;
+package ru.ilonich.igps.model;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;

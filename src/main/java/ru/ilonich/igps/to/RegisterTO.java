@@ -9,8 +9,10 @@ import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.model.enumerations.Authority;
 import ru.ilonich.igps.model.enumerations.Location;
 import ru.ilonich.igps.model.enumerations.Role;
+import ru.ilonich.igps.service.UserService;
 import ru.ilonich.igps.utils.PasswordUtil;
 import ru.ilonich.igps.utils.custom.PasswordsEqualConstraint;
+import ru.ilonich.igps.utils.custom.UniqueConstraint;
 
 import javax.validation.constraints.Pattern;
 
@@ -21,9 +23,11 @@ public class RegisterTO implements TransferObject {
     @SafeHtml
     @Length(min = 2, max = 24)
     @Pattern(regexp = "^((?![\\t]|[\\v]|[\\r]|[\\n]|[\\f]|  )[\\s\\S])*$")
+    @UniqueConstraint(service = UserService.class, fieldName = "username")
     private String username;
     @Email
     @NotBlank
+    @UniqueConstraint(service = UserService.class, fieldName = "email")
     private String email;
     @NotBlank
     @Length(min = 5, max = 24)
@@ -57,8 +61,9 @@ public class RegisterTO implements TransferObject {
         return email;
     }
 
+    @JsonSetter("email")
     public void setEmail(String email) {
-        this.email = email;
+        this.email = email.toLowerCase();
     }
 
     public String getPassword() {

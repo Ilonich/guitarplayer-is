@@ -1,15 +1,15 @@
 package ru.ilonich.igps.config.security;
 
-import com.google.common.cache.LoadingCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
-import ru.ilonich.igps.config.security.misc.KeyPair;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.service.AuthenticationService;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
+import ru.ilonich.igps.to.ErrorInfo;
 import ru.ilonich.igps.utils.HmacSigner;
+import ru.ilonich.igps.utils.JsonUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -21,18 +21,18 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.ParseException;
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 
 public class XAuthTokenFilter extends GenericFilterBean {
     private static final Logger LOG = LoggerFactory.getLogger(XAuthTokenFilter.class);
 
     private AuthenticationService authenticationService;
-    private LoadingCache<String, KeyPair> keyStore;
     private SecuredRequestCheckService checkService;
 
-    public XAuthTokenFilter(AuthenticationService authenticationService, LoadingCache<String, KeyPair> keyStore, SecuredRequestCheckService checkService){
+    public XAuthTokenFilter(AuthenticationService authenticationService, SecuredRequestCheckService checkService){
         this.authenticationService = authenticationService;
-        this.keyStore = keyStore;
         this.checkService = checkService;
     }
 
@@ -49,11 +49,10 @@ public class XAuthTokenFilter extends GenericFilterBean {
                 String login = HmacSigner.getJwtClaim(jwtCookieValue, JWT_CLAIM_LOGIN.toString());
                 Assert.notNull(login, "No login found in JWT");
 
-                //Cache contains login key?
-                KeyPair keyPair = keyStore.getIfPresent(login);
-                Assert.notNull(keyPair, "No user found with login: "+login);
+                String privateKey = checkService.getPrivateSecret(login);
+                Assert.notNull(privateKey, "No user found with login: "+login);
 
-                Assert.isTrue(HmacSigner.verifyJWT(jwtCookieValue, keyPair.getPrivateKey()),"The Json Web Token is invalid");
+                Assert.isTrue(HmacSigner.verifyJWT(jwtCookieValue, privateKey),"The Json Web Token is invalid");
 
                 Assert.isTrue(!HmacSigner.isJwtExpired(jwtCookieValue),"The Json Web Token is expired");
 
@@ -71,7 +70,8 @@ public class XAuthTokenFilter extends GenericFilterBean {
                 if (checkService.isAuthenticationRequired(request)) {
                     LOG.debug("Token authentication failed", e);
                     response.setStatus(403);
-                    response.getWriter().write(e.getMessage());
+                    response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+                    response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(request.getRequestURL(), "SecurityException", e.getMessage())));
                 } else {
                     this.authenticationService.authenticateAnonymous();
                     filterChain.doFilter(request, response);

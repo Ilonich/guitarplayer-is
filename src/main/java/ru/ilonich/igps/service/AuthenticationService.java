@@ -1,6 +1,7 @@
 package ru.ilonich.igps.service;
 
 import ru.ilonich.igps.exception.HmacException;
+import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
@@ -11,8 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 public interface AuthenticationService {
 
     AuthTO authenticate(LoginTO loginTO, HttpServletResponse response) throws HmacException;
-    public User register(RegisterTO registerTO);
-    void logout();
+    public User register(RegisterTO registerTO) throws HmacException;
+    void logout(AuthenticatedUser authenticatedUser);
     void authenticateByToken(String username);
     void authenticateAnonymous();
 }

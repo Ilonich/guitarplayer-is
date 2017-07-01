@@ -2,10 +2,9 @@ package ru.ilonich.igps.service;
 
 import com.google.common.cache.LoadingCache;
 import org.apache.commons.codec.binary.Base64;
-import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.ilonich.igps.config.security.misc.KeyPair;
+import ru.ilonich.igps.model.tokens.KeyPair;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -34,8 +33,14 @@ public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckServic
 
     @Override
     public String getPublicSecret(String iss) {
-        KeyPair keyPair = keyStore.getIfPresent(iss);
+        KeyPair keyPair = keyStore.getUnchecked(iss);
         return keyPair == null ? null : keyPair.getPublicKey();
+    }
+
+    @Override
+    public String getPrivateSecret(String iss) {
+        KeyPair keyPair = keyStore.getUnchecked(iss);
+        return keyPair == null ? null : keyPair.getPrivateKey();
     }
 
     @Override

@@ -27,8 +27,8 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
-import ru.ilonich.igps.config.security.misc.KeyPair;
-import ru.ilonich.igps.utils.HmacSigner;
+import ru.ilonich.igps.model.tokens.KeyPair;
+import ru.ilonich.igps.repository.tokens.KeyPairRepository;
 import ru.ilonich.igps.utils.JpaUtil;
 
 import javax.sql.DataSource;
@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(basePackages = {"ru.ilonich.igps.repository.user"})
+@EnableJpaRepositories(basePackages = {"ru.ilonich.igps.repository.user", "ru.ilonich.igps.repository.tokens"})
 @EnableCaching
 @ComponentScan({"ru.ilonich.igps.repository", "ru.ilonich.igps.service"})
 public class JpaConfig implements TransactionManagementConfigurer {
@@ -152,20 +152,23 @@ public class JpaConfig implements TransactionManagementConfigurer {
 
     @Bean
     public JpaUtil jpaUtil(){
-        return new JpaUtil(configureEntityManagerFactory().getObject().createEntityManager());
+        return new JpaUtil();
     }
+
+    @Autowired
+    private KeyPairRepository keyPairRepository;
 
     @Bean
     public LoadingCache<String, KeyPair> keyStore(){
         return CacheBuilder.newBuilder()
                 .concurrencyLevel(1)
-                .expireAfterWrite(24, TimeUnit.HOURS)
+                .expireAfterAccess(1, TimeUnit.HOURS)
                 .initialCapacity(10)
                 .maximumSize(Long.MAX_VALUE)
                 .build(new CacheLoader<String, KeyPair>() {
                     @Override
                     public KeyPair load(String login) throws Exception {
-                        return new KeyPair(HmacSigner.generateSecret(), HmacSigner.generateSecret()); //TODO from DB
+                        return keyPairRepository.getById(login);
                     }
                 });
     }

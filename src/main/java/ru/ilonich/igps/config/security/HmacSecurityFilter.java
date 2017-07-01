@@ -9,7 +9,9 @@ import ru.ilonich.igps.config.security.misc.HmacToken;
 import ru.ilonich.igps.config.security.misc.WrappedRequest;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
+import ru.ilonich.igps.to.ErrorInfo;
 import ru.ilonich.igps.utils.HmacSigner;
+import ru.ilonich.igps.utils.JsonUtil;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -23,12 +25,14 @@ import java.net.URLDecoder;
 import java.util.Collections;
 import java.util.Map;
 
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 
 public class HmacSecurityFilter extends GenericFilterBean {
     private static final Logger LOG = LoggerFactory.getLogger(HmacSecurityFilter.class);
 
-    public static final Integer JWT_TTL = 24;
+    public static final Integer JWT_TTL = 60*60*24;
 
     private SecuredRequestCheckService checkService;
 
@@ -65,7 +69,6 @@ public class HmacSecurityFilter extends GenericFilterBean {
                 }
                 String encoding = HmacSigner.getJwtClaim(jwtCookieValue, ENCODING_CLAIM_PROPERTY.toString());
                 String iss = HmacSigner.getJwtIss(jwtCookieValue);
-                //Get public secret key
                 String publicSecret = checkService.getPublicSecret(iss);
                 Assert.notNull(publicSecret, "Secret key is missing from the keys storage (logout)");
                 String message;
@@ -84,7 +87,7 @@ public class HmacSecurityFilter extends GenericFilterBean {
                 if (digestClient.equals(digestServer)) {
                     LOG.debug("Request is valid, digest are matching");
                     Map<String,String> encodingClaim = Collections.singletonMap(ENCODING_CLAIM_PROPERTY.toString(), HMAC_SHA_256.toString());
-                    HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, iss, JWT_TTL, encodingClaim);
+                    HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, iss, HmacSigner.getTimeLeftSeconds(jwtCookieValue), encodingClaim);
                     response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
                     filterChain.doFilter(wrappedRequest, response);
                 } else {
@@ -97,7 +100,8 @@ public class HmacSecurityFilter extends GenericFilterBean {
             if (checkService.isAuthenticationRequired(request)) {
                 LOG.debug("Error while generating hmac token", e);
                 response.setStatus(403);
-                response.getWriter().write(e.getMessage());
+                response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+                response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(wrappedRequest.getRequestURL(), "SecurityException", e.getMessage())));
             } else {
                 filterChain.doFilter(wrappedRequest, response);
             }

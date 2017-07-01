@@ -13,7 +13,17 @@ public interface CrudUser extends JpaRepository<User, Integer> {
     @Query("SELECT u FROM User u WHERE u.email=?1")
     User findByEmail(String email);
 
+    @EntityGraph(attributePaths={"roles"})
+    @Query("SELECT u FROM User u WHERE u.id=?1")
+    User getById(Integer id);
+
     @Override
     @Transactional
     User save(User user);
+
+    @Query("SELECT count(u)>0 FROM User u WHERE u.email=?1")
+    boolean existsByEmail(String email);
+
+    @Query("SELECT count(u)>0 FROM User u WHERE u.username=?1")
+    boolean existsByUsername(String username);
 }

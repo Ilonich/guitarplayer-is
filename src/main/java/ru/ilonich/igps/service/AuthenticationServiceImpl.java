@@ -3,6 +3,7 @@ package ru.ilonich.igps.service;
 import com.google.common.cache.LoadingCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,18 +12,22 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.ilonich.igps.config.security.HmacSecurityFilter;
 import ru.ilonich.igps.config.security.misc.HmacToken;
-import ru.ilonich.igps.config.security.misc.KeyPair;
+import ru.ilonich.igps.model.tokens.KeyPair;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
+import ru.ilonich.igps.model.tokens.VerificationToken;
+import ru.ilonich.igps.repository.tokens.KeyPairRepository;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
 import ru.ilonich.igps.to.RegisterTO;
-import ru.ilonich.igps.utils.AnonymousUser;
+import ru.ilonich.igps.model.AnonymousUser;
 import ru.ilonich.igps.utils.HmacSigner;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.*;
 
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
@@ -35,6 +40,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private KeyPairRepository keyPairRepository;
+
+    @Autowired(required = false)
+    JavaMailSender javaMailService;
 
     @Autowired
     private LoadingCache<String, KeyPair> keyStore;
@@ -51,20 +62,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String csrfId = UUID.randomUUID().toString();
         Map<String,String> encodingClaim = Collections.singletonMap(ENCODING_CLAIM_PROPERTY.toString(), HMAC_SHA_256.toString());
         Map<String,String> customClaims = new HashMap<>(encodingClaim);
-        customClaims.put(JWT_CLAIM_LOGIN.toString(), loginTO.getLogin());
+        customClaims.put(JWT_CLAIM_LOGIN.toString(), user.getUsername());
         customClaims.put(CSRF_CLAIM_HEADER.toString(), csrfId);
 
-        //Store in cache map: login(email) = key, generated secret keys pair = value
-        KeyPair keyPair = keyStore.getUnchecked(user.getUsername()); // LoadingCache invokes 'load' for new entry = (String login, new KeyPair(HmacSigner.generateSecret(), HmacSigner.generateSecret())
-        String privateSecret = keyPair.getPrivateKey();
-        String publicSecret = keyPair.getPublicKey();
+        String privateSecret = HmacSigner.generateSecret();
+        String publicSecret = HmacSigner.generateSecret();
+        KeyPair keyPair = new KeyPair(user.getUsername(), publicSecret, privateSecret, OffsetDateTime.now().plusSeconds(HmacSecurityFilter.JWT_TTL));
+        keyStore.put(user.getUsername(), keyPair);
+        keyPairRepository.save(keyPair);
 
         HmacToken privateToken = HmacSigner.getSignedToken(privateSecret, user.getUsername(), HmacSecurityFilter.JWT_TTL, customClaims);
         HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, user.getUsername(), HmacSecurityFilter.JWT_TTL, encodingClaim);
 
         Cookie jwtCookie = new Cookie(JWT_APP_COOKIE.toString(), privateToken.getJwt());
         jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(60*60*24);
+        jwtCookie.setMaxAge(HmacSecurityFilter.JWT_TTL);
         jwtCookie.setHttpOnly(true);
         response.addCookie(jwtCookie);
 
@@ -77,17 +89,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public User register(RegisterTO registerTO) {
-        return userService.save(registerTO.createUser());
+    public User register(RegisterTO registerTO) throws HmacException {
+        VerificationToken token = userService.registerAndCreateVerificationToken(registerTO.createUser());
+        //javaMailService.send(constructMessage(token.getEmail(), token.getToken()));
+        return token.getUser();
     }
 
     @Override
-    public void logout() {
-        if(SecurityContextHolder.getContext().getAuthentication() != null && SecurityContextHolder.getContext().getAuthentication().isAuthenticated()) {
-            AuthenticatedUser user = AuthenticatedUser.safeGet();
-            if (user != null){
-                keyStore.invalidate(user.getUsername());
-            }
+    public void logout(AuthenticatedUser authenticatedUser) {
+        if (authenticatedUser != null){
+            keyStore.invalidate(authenticatedUser.getUsername());
+            keyPairRepository.deleteById(authenticatedUser.getUsername());
         }
     }
 

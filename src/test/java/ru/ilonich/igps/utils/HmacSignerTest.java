@@ -39,9 +39,14 @@ public class HmacSignerTest {
 
     @Test
     public void isJwtExpired() throws Exception {
-        //ttl - time to love, set to 0;
         HmacToken hmacToken = HmacSigner.getSignedToken(HmacSigner.generateSecret(), "yolo@cc.com", 0, Collections.singletonMap("claim", "something"));
         assertTrue(HmacSigner.isJwtExpired(hmacToken.getJwt()));
+    }
+
+    @Test
+    public void getTimeLeftSeconds() throws Exception {
+        HmacToken hmacToken = HmacSigner.getSignedToken(HmacSigner.generateSecret(), "asd@dg.com", 0, Collections.singletonMap("claim", "something"));
+        assertTrue(HmacSigner.getTimeLeftSeconds(hmacToken.getJwt()) <= 0);
     }
 
     @Test

@@ -7,6 +7,9 @@ DELETE FROM posts;
 DELETE FROM messages;
 DELETE FROM dialogs;
 DELETE FROM dialog_users;
+DELETE FROM secret_keys_store;
+DELETE FROM password_reset_verifications;
+DELETE FROM registration_verifications;
 DELETE FROM user_roles;
 DELETE FROM users;
 
@@ -21,7 +24,7 @@ INSERT INTO users (name, email, password, enabled, bio, authority, registered) V
   ('Админ', 'admin@igps.ru', '$2a$10$Zj7Perk/znZzHmk8.07ByuJOMIGpt/2K7fjZ52HbX0BCOgDJ7ixtC', TRUE, 'Я хороший админ, у меня есть кот', 'MEMBER', 1494840045000),
   ('Модератор', 'mod@igps.ru', '$2a$10$QSbul4JCPb/pSCrZ8E7dQuZIWWMHs4WFYHW9kSAt9UUUcuca7gt7m', TRUE, 'Я хороший модератор, у меня есть кофе', 'MEMBER', 1495011510000),
   ('Представитель', 'friend@igps.ru', '$2a$10$D1cWOPMmYN4Qf67pY/LM7elrwEG.3am1SFP2zjlvx7Lk88egoUYBK', TRUE, 'Я хороший знакомый админа, у меня есть сани', 'MEMBER', 1495116562000),
-  ('Пользователь', 'voter@yandex.ru', '$2a$10$GE5HKnDO8gyjfAez8LaJ0eOHntisGgBnUHFFr10tAtI86Cyz0F1HS', TRUE, 'Я хороший парень, у меня есть ружье', 'REGULAR', 1495205506000);
+  ('Пользователь', 'voter@yandex.ru', '$2a$10$GE5HKnDO8gyjfAez8LaJ0eOHntisGgBnUHFFr10tAtI86Cyz0F1HS', FALSE, 'Я хороший парень, у меня есть ружье', 'REGULAR', 1495205506000);
 
 INSERT INTO user_roles (user_id, role) VALUES
   (100000, 'ADMIN'),
@@ -78,3 +81,6 @@ INSERT INTO items (name, description, type, user_id) VALUES
 
 INSERT INTO market_items (name, description, type, cost, contacts, user_id) VALUES
   ('Gitarka', 'Prostaya gitarka', 'GUITAR', 100500, 'ул. Хухуран', 100000);
+
+INSERT INTO registration_verifications (id, token, expiries) VALUES
+  (100003, 'YzZhZDk5YjAtYWM1ZC00YjgxLWEyNTAtYWY3MmFiNmFmZGIz', '2017-06-30 18:38:24.995000');

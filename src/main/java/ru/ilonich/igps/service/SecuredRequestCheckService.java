@@ -27,6 +27,13 @@ public interface SecuredRequestCheckService {
     String getPublicSecret(String iss);
 
     /**
+     * Get the stored private secret (locally,remotely,cache,etc..)
+     * @param iss issuer
+     * @return secret key
+     */
+    String getPrivateSecret(String iss);
+
+    /**
      * Is the secret encoded in base 64
      * @return true if encoded in base 64 , false otherwise
      */
@@ -38,4 +45,6 @@ public interface SecuredRequestCheckService {
      * @return Cookie found, null otherwise
      */
     Cookie findJwtCookie(HttpServletRequest request);
+
+
 }

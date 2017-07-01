@@ -274,7 +274,23 @@ public class User implements HasId {
         return getId() != null ? getId() : 0;
     }
 
-/*
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", enabled=" + enabled +
+                ", decent=" + decent +
+                ", roles=" + roles +
+                ", username='" + username + '\'' +
+                ", rating=" + rating +
+                ", registered=" + registered +
+                ", authority=" + authority +
+                ", location=" + location +
+                '}';
+    }
+
+    /*
     @OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     @JoinTable(name = "comments", joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id")})
     @OrderBy("created DESC")

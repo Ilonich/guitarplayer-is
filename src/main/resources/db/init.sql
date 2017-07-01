@@ -16,6 +16,9 @@ DROP TABLE IF EXISTS posts;
 DROP TABLE IF EXISTS messages;
 DROP TABLE IF EXISTS dialog_users;
 DROP TABLE IF EXISTS dialogs;
+DROP TABLE IF EXISTS registration_verifications;
+DROP TABLE IF EXISTS password_reset_verifications;
+DROP TABLE IF EXISTS secret_keys_store;
 DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS users;
 
@@ -50,6 +53,28 @@ CREATE TABLE users
 CREATE UNIQUE INDEX users_unique_name_idx ON users (name);
 CREATE UNIQUE INDEX users_unique_email_idx ON users (email);
 CREATE INDEX users_location_idx ON users USING BTREE (location);
+
+CREATE TABLE registration_verifications
+(
+  id INTEGER PRIMARY KEY,
+  token VARCHAR NOT NULL,
+  expiries TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+
+CREATE TABLE password_reset_verifications
+(
+  id INTEGER PRIMARY KEY,
+  token VARCHAR NOT NULL,
+  expiries TIMESTAMP WITHOUT TIME ZONE NOT NULL
+);
+
+CREATE TABLE secret_keys_store
+(
+  email_as_login VARCHAR PRIMARY KEY,
+  public_secret VARCHAR,
+  private_secret VARCHAR,
+  expiries TIMESTAMP WITH TIME ZONE NOT NULL
+);
 
 CREATE TABLE user_roles
 (
