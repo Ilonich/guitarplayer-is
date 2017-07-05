@@ -12,7 +12,6 @@ import ru.ilonich.igps.exception.NotFoundException;
 import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.model.tokens.VerificationToken;
-import ru.ilonich.igps.repository.tokens.VerificationTokenRepository;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,9 +24,6 @@ public class UserServiceImplTest {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    VerificationTokenRepository tokenRepository;
 
     @Test
     public void getById() throws Exception {
@@ -48,8 +44,7 @@ public class UserServiceImplTest {
 
     @Test(expected = UsernameNotFoundException.class)
     public void loadUserByUsernameUnknown() throws Exception {
-        User user = ((AuthenticatedUser) userService.loadUserByUsername("demon")).getUser();
-        USER_MODEL_MATCHER.assertEquals(UserTestData.moderator, user);
+        userService.loadUserByUsername("demon");
     }
 
     @Test

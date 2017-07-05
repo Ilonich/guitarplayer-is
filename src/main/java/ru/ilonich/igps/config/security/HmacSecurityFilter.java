@@ -3,10 +3,10 @@ package ru.ilonich.igps.config.security;
 import com.google.common.base.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.Assert;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.ilonich.igps.config.security.misc.HmacToken;
 import ru.ilonich.igps.config.security.misc.WrappedRequest;
+import ru.ilonich.igps.exception.ExpiredAuthenticationException;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
 import ru.ilonich.igps.to.ErrorInfo;
@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.text.ParseException;
 import java.util.Collections;
 import java.util.Map;
 
@@ -33,10 +34,11 @@ public class HmacSecurityFilter extends GenericFilterBean {
     private static final Logger LOG = LoggerFactory.getLogger(HmacSecurityFilter.class);
 
     public static final Integer JWT_TTL = 60*60*24;
+    public static final Map<String, String> CLAIM_WITH_CURRENT_ENCODING = Collections.singletonMap(ENCODING_CLAIM_PROPERTY.toString(), HMAC_SHA_256.toString());
 
     private SecuredRequestCheckService checkService;
 
-    public HmacSecurityFilter(SecuredRequestCheckService checkService) {
+    HmacSecurityFilter(SecuredRequestCheckService checkService) {
         this.checkService = checkService;
     }
 
@@ -44,67 +46,81 @@ public class HmacSecurityFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
-        WrappedRequest wrappedRequest = new WrappedRequest(request);
-        try {
-            if (checkService.canVerify(request)) {
-                //Get Authentication jwt claim
+        if (checkService.canVerify(request)) {
+            try {
                 Cookie jwtCookie = checkService.findJwtCookie(request);
-                Assert.notNull(jwtCookie,"No jwt cookie found");
+                validateNotNull(jwtCookie, "No jwt cookie found");
                 String jwtCookieValue = jwtCookie.getValue();
-                if (jwtCookieValue == null || jwtCookieValue.isEmpty()) {
-                    throw new HmacException("JWT cookies value is missing from the request");
-                }
+                validateNotEmpty(jwtCookieValue, "JWT cookies value is missing from the request");
                 String digestClient = request.getHeader(X_DIGEST.toString());
-                if (digestClient == null || digestClient.isEmpty()) {
-                    throw new HmacException("The digest is missing from the '" + X_DIGEST.toString() + "' header");
-                }
+                validateNotEmpty(digestClient, "The digest is missing from the '" + X_DIGEST.toString() + "' header");
                 String xOnceHeader = request.getHeader(X_ONCE.toString());
-                if (xOnceHeader == null || xOnceHeader.isEmpty()) {
-                    throw new HmacException("The date is missing from the '" + X_ONCE.toString() + "' header");
-                }
-                String url = request.getRequestURL().toString();
-                //just in case (should not be used for restful)
+                validateNotEmpty(xOnceHeader, "The date is missing from the '" + X_ONCE.toString() + "' header");
+                StringBuilder urlQuery = new StringBuilder(request.getRequestURL().toString());
                 if (request.getQueryString() != null) {
-                    url += "?" + URLDecoder.decode(request.getQueryString(), Charsets.UTF_8.displayName());
+                    urlQuery.append("?").append(URLDecoder.decode(request.getQueryString(), Charsets.UTF_8.displayName()));
                 }
-                String encoding = HmacSigner.getJwtClaim(jwtCookieValue, ENCODING_CLAIM_PROPERTY.toString());
-                String iss = HmacSigner.getJwtIss(jwtCookieValue);
-                String publicSecret = checkService.getPublicSecret(iss);
-                Assert.notNull(publicSecret, "Secret key is missing from the keys storage (logout)");
-                String message;
+                StringBuilder messageDigest = new StringBuilder();
                 if ("POST".equals(request.getMethod()) || "PUT".equals(request.getMethod()) || "PATCH".equals(request.getMethod())) {
-                    message = request.getMethod().concat(wrappedRequest.getBody()).concat(url).concat(xOnceHeader);
+                    WrappedRequest wrappedRequest = new WrappedRequest(request);
+                    messageDigest.append(request.getMethod()).append(wrappedRequest.getBody()).append(urlQuery).append(xOnceHeader);
                 } else {
-                    message = request.getMethod().concat(url).concat(xOnceHeader);
+                    messageDigest.append(request.getMethod()).append(urlQuery).append(xOnceHeader);
                 }
-
+                //Get Authentication jwt claim
+                String iss = HmacSigner.getJwtIss(jwtCookieValue);
                 //Digest are calculated using a public shared secret
-                String digestServer = HmacSigner.encodeMac(publicSecret, message, encoding);
+                String publicSecret = checkService.getPublicSecret(iss);
+                String encoding = HmacSigner.getJwtClaim(jwtCookieValue, ENCODING_CLAIM_PROPERTY.toString());
+                String digestServer = HmacSigner.encodeMac(publicSecret, messageDigest.toString(), encoding);
 
-                LOG.info("\nHMAC JWT: {}\nHMAC url digest: {}\nHMAC Message server: {}\nHMAC Secret server: {}\nHMAC Digest server: {}\nHMAC Digest client: {}\nHMAC encoding: {}",
-                        jwtCookieValue, url, message, publicSecret, digestServer, digestClient, encoding);
+                LOG.debug("HMAC JWT: {}\nHMAC url digest: {}\nHMAC Message server: {}\nHMAC Secret server: {}\nHMAC Digest server: {}\nHMAC Digest client: {}\nHMAC encoding: {}",
+                        jwtCookieValue, urlQuery.toString(), messageDigest.toString(), publicSecret, digestServer, digestClient, encoding);
 
                 if (digestClient.equals(digestServer)) {
                     LOG.debug("Request is valid, digest are matching");
-                    Map<String,String> encodingClaim = Collections.singletonMap(ENCODING_CLAIM_PROPERTY.toString(), HMAC_SHA_256.toString());
-                    HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, iss, HmacSigner.getTimeLeftSeconds(jwtCookieValue), encodingClaim);
+                    HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, iss, HmacSigner.getTimeLeftSeconds(jwtCookieValue), CLAIM_WITH_CURRENT_ENCODING);
                     response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
-                    filterChain.doFilter(wrappedRequest, response);
+                    filterChain.doFilter(request, response);
                 } else {
                     throw new HmacException("Digest are not matching! Client: " + digestClient + " / Server: " + digestServer);
                 }
-            } else {
-                filterChain.doFilter(wrappedRequest, response);
+            } catch (ExpiredAuthenticationException | HmacException | ParseException e){
+                if (checkService.isAuthenticationRequired(request)) {
+                    setSecurityFilterExceptionResponse(response, e, request.getRequestURL());
+                } else {
+                    filterChain.doFilter(request, response);
+                }
             }
-        } catch (Exception e){
-            if (checkService.isAuthenticationRequired(request)) {
-                LOG.debug("Error while generating hmac token", e);
-                response.setStatus(403);
-                response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
-                response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(wrappedRequest.getRequestURL(), "SecurityException", e.getMessage())));
-            } else {
-                filterChain.doFilter(wrappedRequest, response);
-            }
+        } else {
+            filterChain.doFilter(request, response);
         }
+
+    }
+
+    static void validateNotEmpty(String value, String errorMessage) throws HmacException {
+        if (value == null || value.isEmpty()){
+            throw new HmacException(errorMessage);
+        }
+    }
+
+    static void setSecurityFilterExceptionResponse(HttpServletResponse response, Exception e, CharSequence url) throws IOException {
+        LOG.debug("Error while generating hmac token", e);
+        if (e instanceof ExpiredAuthenticationException) {
+            response.setStatus(401);
+            response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(url, "ExpiredAuthenticationException", e.getMessage())));
+        } else {
+            response.setStatus(403);
+            response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(url, "SecurityFilterException", e.getMessage())));
+        }
+        response.setHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE);
+    }
+
+    static void validateNotNull(Object value, String errorMessage) throws HmacException {
+        if (value == null) throw new HmacException(errorMessage);
+    }
+
+    static void validateIsTrue(boolean expression, String errorMessage) throws HmacException {
+        if (!expression) throw new HmacException(errorMessage);
     }
 }

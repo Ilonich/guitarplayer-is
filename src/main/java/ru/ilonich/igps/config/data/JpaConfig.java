@@ -1,12 +1,8 @@
 package ru.ilonich.igps.config.data;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.hibernate.cache.ehcache.EhCacheRegionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
@@ -27,19 +23,16 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
-import ru.ilonich.igps.model.tokens.KeyPair;
-import ru.ilonich.igps.repository.tokens.KeyPairRepository;
 import ru.ilonich.igps.utils.JpaUtil;
 
 import javax.sql.DataSource;
 import java.util.Properties;
-import java.util.concurrent.TimeUnit;
 
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"ru.ilonich.igps.repository.user", "ru.ilonich.igps.repository.tokens"})
 @EnableCaching
-@ComponentScan({"ru.ilonich.igps.repository", "ru.ilonich.igps.service"})
+@ComponentScan({"ru.ilonich.igps.repository.user", "ru.ilonich.igps.service"})
 public class JpaConfig implements TransactionManagementConfigurer {
 
     @Value("${dataSource.url}")
@@ -153,23 +146,5 @@ public class JpaConfig implements TransactionManagementConfigurer {
     @Bean
     public JpaUtil jpaUtil(){
         return new JpaUtil();
-    }
-
-    @Autowired
-    private KeyPairRepository keyPairRepository;
-
-    @Bean
-    public LoadingCache<String, KeyPair> keyStore(){
-        return CacheBuilder.newBuilder()
-                .concurrencyLevel(1)
-                .expireAfterAccess(1, TimeUnit.HOURS)
-                .initialCapacity(10)
-                .maximumSize(Long.MAX_VALUE)
-                .build(new CacheLoader<String, KeyPair>() {
-                    @Override
-                    public KeyPair load(String login) throws Exception {
-                        return keyPairRepository.getById(login);
-                    }
-                });
     }
 }

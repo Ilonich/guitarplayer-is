@@ -1,7 +1,7 @@
 package ru.ilonich.igps.comtroller;
 
 
-import com.google.common.cache.LoadingCache;
+import com.google.common.cache.CacheLoader;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -9,17 +9,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.ilonich.igps.UserTestData;
-import ru.ilonich.igps.model.tokens.KeyPair;
+import ru.ilonich.igps.exception.ExpiredAuthenticationException;
 import ru.ilonich.igps.service.LoginAttemptService;
+import ru.ilonich.igps.service.LoginSecretKeysPairStoreService;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
 import ru.ilonich.igps.to.RegisterTO;
+import ru.ilonich.igps.utils.HmacSigner;
 
 import javax.servlet.http.Cookie;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -33,7 +39,7 @@ import static ru.ilonich.igps.utils.JsonUtil.*;
 public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Autowired
-    private LoadingCache<String, KeyPair> keyStore;
+    private LoginSecretKeysPairStoreService keysStoreService;
 
     @Autowired
     private LoginAttemptService loginAttemptService;
@@ -94,15 +100,34 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
         assertTrue(!result.getResponse().getHeader(CSRF_CLAIM_HEADER.toString()).isEmpty());
         assertTrue(!result.getResponse().getHeader(X_TOKEN_ACCESS.toString()).isEmpty());
         assertTrue(result.getResponse().getCookie(JWT_APP_COOKIE.toString()) != null);
-        assertTrue(keyStore.getIfPresent(registerTO.getEmail()) != null);
+        assertTrue(keysStoreService.get(registerTO.getEmail()) != null);
     }
 
-    @Test
+    @Test(expected = ExpiredAuthenticationException.class)
     public void logoutSuccess() throws Exception {
         LoginTO loginTO = new LoginTO("mod@igps.ru", "banme");
         mockMVC.perform(authenticatedRequest(loginTO, RequestMethod.GET, "/api/logout", null))
                 .andExpect(status().is(200));
-        assertTrue(keyStore.getIfPresent(loginTO.getLogin()) == null);
+        assertTrue(keysStoreService.get(loginTO.getLogin()) == null);
+    }
+
+    @Test
+    public void expired() throws Exception {
+        MvcResult afterAuthResult = authenticate("mod@igps.ru", "banme").andReturn();
+        String date = OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+        String digestMessage = "GEThttp://localhost/api/logout" + date;
+        String secret = afterAuthResult.getResponse().getHeader(X_SECRET.toString());
+        Cookie cookie = afterAuthResult.getResponse().getCookie(JWT_APP_COOKIE.toString());
+        String csrf = HmacSigner.getJwtClaim(cookie.getValue(), CSRF_CLAIM_HEADER.toString());
+        String digest = HmacSigner.encodeMac(secret, digestMessage, HMAC_SHA_256.toString());
+        keysStoreService.remove("mod@igps.ru");
+        MvcResult result = mockMVC.perform(get("/api/logout").header(X_DIGEST.toString(), digest)
+                .header(X_ONCE.toString(), date)
+                .header(CSRF_CLAIM_HEADER.toString(), csrf)
+                .cookie(afterAuthResult.getResponse().getCookies())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print()).andReturn();
+        System.out.println(result.getResponse().getStatus());
     }
 
     @Test
@@ -158,6 +183,16 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
         mockMVC.perform(post("/api/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("fga", "asd@asd.ry", "123455", "12345"))))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andDo(print());
+    }
+
+    @Test
+    public void registerUnsafeHtml() throws Exception {
+        mockMVC.perform(post("/api/register")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(new RegisterTO("<script>alert()</script", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andDo(print());

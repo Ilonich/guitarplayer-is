@@ -38,6 +38,24 @@ public class AuthenticatedUser implements UserDetails, CredentialsContainer {
         return get().getId();
     }
 
+    public int getId() {
+        return user.getId();
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public boolean isEmailVerified() {
+        return user.isEnabled();
+    }
+
+    public boolean isBanned() {
+        return !user.isDecent();
+    }
+
+    public boolean isAnonymous() { return user.getId().compareTo(1) == 0; }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return user.getRoles();
@@ -75,20 +93,4 @@ public class AuthenticatedUser implements UserDetails, CredentialsContainer {
 
     @Override
     public void eraseCredentials() {}
-
-    public boolean isEmailVerificated() {
-        return user.isEnabled();
-    }
-
-    public boolean isBanned() {
-        return !user.isDecent();
-    }
-
-    public int getId() {
-        return user.getId();
-    }
-
-    public User getUser() {
-        return user;
-    }
 }

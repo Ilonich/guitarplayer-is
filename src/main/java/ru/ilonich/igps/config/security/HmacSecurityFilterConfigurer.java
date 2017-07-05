@@ -9,7 +9,7 @@ class HmacSecurityFilterConfigurer extends SecurityConfigurerAdapter<DefaultSecu
 
     private SecuredRequestCheckService requestCheckService;
 
-    HmacSecurityFilterConfigurer(SecuredRequestCheckService  service){
+    HmacSecurityFilterConfigurer(SecuredRequestCheckService service){
         this.requestCheckService = service;
     }
 

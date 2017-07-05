@@ -9,18 +9,14 @@ import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.model.tokens.VerificationToken;
-import ru.ilonich.igps.repository.UserRepository;
+import ru.ilonich.igps.repository.user.UserRepository;
 import ru.ilonich.igps.utils.ValidationUtil;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
-
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
 
     @Override
     public User getById(Integer id) {

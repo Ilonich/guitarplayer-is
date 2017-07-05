@@ -1,6 +1,6 @@
 package ru.ilonich.igps.to;
 
-public class ErrorInfo {
+public class ErrorInfo implements TransferObject{
     private final String url;
     private final String cause;
     private final String[] details;

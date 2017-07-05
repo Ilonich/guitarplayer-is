@@ -7,12 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "secret_keys_store")
-public final class KeyPair implements Serializable {
+public final class LoginSecretKeysPair implements Serializable {
     private static final long serialVersionUID = -4071505;
 
     @Id
@@ -28,9 +27,9 @@ public final class KeyPair implements Serializable {
     @Column(name = "expiries")
     private OffsetDateTime expirationDate;
 
-    public KeyPair(){}
+    public LoginSecretKeysPair(){}
 
-    public KeyPair(String emailLogin, String publicKey, String privateKey, OffsetDateTime expirationDate) {
+    public LoginSecretKeysPair(String emailLogin, String publicKey, String privateKey, OffsetDateTime expirationDate) {
         this.emailLogin = emailLogin;
         this.publicKey = publicKey;
         this.privateKey = privateKey;
@@ -82,7 +81,7 @@ public final class KeyPair implements Serializable {
             return false;
         }
 
-        KeyPair that = (KeyPair) obj;
+        LoginSecretKeysPair that = (LoginSecretKeysPair) obj;
 
         return this.getEmailLogin().equals(that.getEmailLogin())
                 && this.getPrivateKey().equals(that.getPrivateKey())

@@ -6,17 +6,16 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.model.tokens.VerificationToken;
-import ru.ilonich.igps.repository.UserRepository;
 import ru.ilonich.igps.repository.tokens.VerificationTokenRepository;
 
 @Repository("userRepository")
 public class UserRepositoryImpl implements UserRepository {
 
     @Autowired
-    CrudUser crudUser;
+    private CrudUser crudUser;
 
     @Autowired
-    VerificationTokenRepository verificationTokenRepository;
+    private VerificationTokenRepository verificationTokenRepository;
 
     @Override
     public User getById(Integer id) {

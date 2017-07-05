@@ -17,6 +17,7 @@ import ru.ilonich.igps.config.data.JpaConfig;
 import ru.ilonich.igps.service.AuthenticationService;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
 import ru.ilonich.igps.service.UserService;
+import ru.ilonich.igps.utils.MessageUtil;
 import ru.ilonich.igps.utils.PasswordUtil;
 
 @Configuration
@@ -32,6 +33,9 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     private SecuredRequestCheckService securedRequestCheckService;
+
+    @Autowired
+    private MessageUtil messageUtil;
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
@@ -50,7 +54,9 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
         web.ignoring()
                 .antMatchers("*.{js}")
                 .antMatchers("*.{ico}")
-                .antMatchers("*.{html}");
+                .antMatchers("*.{html}")
+                .antMatchers("*.{css}")
+                .antMatchers("*.{woff2}");
     }
 
     @Override
@@ -59,7 +65,8 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/authenticate").anonymous()
                 .antMatchers("/api/register").anonymous()
-                .antMatchers("/api/public/**").anonymous()
+                .antMatchers("/api/reset").anonymous()
+                .antMatchers("/api/confirm/**").anonymous()
                 .antMatchers("/").anonymous()
                 .antMatchers("/favicon.ico").anonymous()
                 .antMatchers("/api/**").authenticated()
@@ -77,7 +84,9 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .apply(authTokenConfigurer())
                 .and()
-                .apply(hmacSecurityConfigurer());
+                .apply(hmacSecurityConfigurer())
+                .and()
+                .requiresChannel().anyRequest().requiresSecure();
     }
 
     @Bean

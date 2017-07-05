@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.model.tokens.PasswordResetToken;
 
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
 public interface PasswordResetTokenRepository extends JpaRepository<PasswordResetToken, Integer> {
@@ -25,5 +24,5 @@ public interface PasswordResetTokenRepository extends JpaRepository<PasswordRese
     @Transactional
     @Modifying
     @Query("DELETE FROM PasswordResetToken t WHERE t.expirationDate <= ?1")
-    Stream<PasswordResetToken> deleteAllExpiredTokens(LocalDateTime localDateTime);
+    void deleteAllExpiredTokens(LocalDateTime localDateTime);
 }

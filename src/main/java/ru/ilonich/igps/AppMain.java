@@ -1,8 +1,7 @@
 package ru.ilonich.igps;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.Banner;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration;
@@ -40,16 +39,15 @@ import java.util.stream.Stream;
         SecurityFilterAutoConfiguration.class, HttpEncodingAutoConfiguration.class,
         MultipartAutoConfiguration.class, WebClientAutoConfiguration.class,
         WebSocketAutoConfiguration.class, ConfigurationPropertiesAutoConfiguration.class,
-        ProjectInfoAutoConfiguration.class, ServerPropertiesAutoConfiguration.class,
-        HibernateJpaAutoConfiguration.class, JtaAutoConfiguration.class,
-        SpringDataWebAutoConfiguration.class
+        ProjectInfoAutoConfiguration.class, HibernateJpaAutoConfiguration.class, JtaAutoConfiguration.class,
+        SpringDataWebAutoConfiguration.class, ServerPropertiesAutoConfiguration.class
 })
 @Import({WebConfig.class})
 public class AppMain extends SpringBootServletInitializer {
-    private static final Logger LOG = LoggerFactory.getLogger(AppMain.class);
 
     public static void main(String[] args) {
-        ApplicationContext ac = configureApplication(new SpringApplicationBuilder()).run(args);
+        ApplicationContext ac = SpringApplication.run(AppMain.class, args);
+        //ApplicationContext ac = configureApplication(new SpringApplicationBuilder()).run(args);
         Stream.of(ac.getBeanDefinitionNames()).forEach(System.out::println);
     }
 

@@ -8,7 +8,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.model.tokens.VerificationToken;
 
 import java.time.LocalDateTime;
-import java.util.stream.Stream;
 
 @Transactional(readOnly = true)
 public interface VerificationTokenRepository extends JpaRepository<VerificationToken, Integer>{
@@ -28,5 +27,5 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     @Transactional
     @Modifying
     @Query("DELETE FROM VerificationToken t WHERE t.expirationDate <= ?1")
-    Stream<VerificationToken> deleteAllExpiredTokens(LocalDateTime localDateTime);
+    void deleteAllExpiredTokens(LocalDateTime localDateTime);
 }

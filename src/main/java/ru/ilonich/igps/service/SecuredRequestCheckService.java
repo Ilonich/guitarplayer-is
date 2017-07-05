@@ -1,5 +1,7 @@
 package ru.ilonich.igps.service;
 
+import ru.ilonich.igps.exception.ExpiredAuthenticationException;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -24,14 +26,14 @@ public interface SecuredRequestCheckService {
      * @param iss issuer
      * @return secret key
      */
-    String getPublicSecret(String iss);
+    String getPublicSecret(String iss) throws ExpiredAuthenticationException;
 
     /**
      * Get the stored private secret (locally,remotely,cache,etc..)
      * @param iss issuer
      * @return secret key
      */
-    String getPrivateSecret(String iss);
+    String getPrivateSecret(String iss) throws ExpiredAuthenticationException;
 
     /**
      * Is the secret encoded in base 64

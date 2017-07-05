@@ -18,12 +18,6 @@ import static org.junit.Assert.*;
 public class HmacSignerTest {
 
     @Test
-    public void test() {
-        String request = "asdasdasd/api/register";
-        Assert.assertTrue(request.contains("/api") && !(request.contains("/api/authenticate") || request.contains("/api/register")));
-    }
-
-    @Test
     public void getSignedToken() throws Exception {
         HmacToken hmacToken = HmacSigner.getSignedToken(HmacSigner.generateSecret(), "yolo@cc.com", 20, Collections.singletonMap("claim", "something"));
         assertNotNull(hmacToken);

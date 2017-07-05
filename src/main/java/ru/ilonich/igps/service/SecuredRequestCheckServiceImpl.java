@@ -1,10 +1,9 @@
 package ru.ilonich.igps.service;
 
-import com.google.common.cache.LoadingCache;
 import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.ilonich.igps.model.tokens.KeyPair;
+import ru.ilonich.igps.exception.ExpiredAuthenticationException;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -14,11 +13,11 @@ import static ru.ilonich.igps.config.security.misc.SecurityConstants.JWT_APP_COO
 @Service("securedRequestCheckService")
 public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckService{
 
-    private final LoadingCache<String, KeyPair> keyStore;
+    private final LoginSecretKeysPairStoreService keysStoreService;
 
     @Autowired
-    public SecuredRequestCheckServiceImpl(LoadingCache<String, KeyPair> keyStore) {
-        this.keyStore = keyStore;
+    public SecuredRequestCheckServiceImpl(LoginSecretKeysPairStoreService keysStoreService) {
+        this.keysStoreService = keysStoreService;
     }
 
     @Override
@@ -32,15 +31,13 @@ public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckServic
     }
 
     @Override
-    public String getPublicSecret(String iss) {
-        KeyPair keyPair = keyStore.getUnchecked(iss);
-        return keyPair == null ? null : keyPair.getPublicKey();
+    public String getPublicSecret(String iss) throws ExpiredAuthenticationException {
+        return keysStoreService.get(iss).getPublicKey();
     }
 
     @Override
-    public String getPrivateSecret(String iss) {
-        KeyPair keyPair = keyStore.getUnchecked(iss);
-        return keyPair == null ? null : keyPair.getPrivateKey();
+    public String getPrivateSecret(String iss) throws ExpiredAuthenticationException {
+        return keysStoreService.get(iss).getPrivateKey();
     }
 
     @Override

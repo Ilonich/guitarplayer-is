@@ -1,4 +1,4 @@
-package ru.ilonich.igps.repository;
+package ru.ilonich.igps.repository.user;
 
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.User;

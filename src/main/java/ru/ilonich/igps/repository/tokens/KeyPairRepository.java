@@ -4,28 +4,31 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
-import ru.ilonich.igps.model.tokens.KeyPair;
+import ru.ilonich.igps.model.tokens.LoginSecretKeysPair;
 
-import java.time.LocalDateTime;
-import java.util.stream.Stream;
+import java.time.OffsetDateTime;
+import java.util.List;
 
 @Transactional(readOnly = true)
-public interface KeyPairRepository extends JpaRepository<KeyPair, String> {
+public interface KeyPairRepository extends JpaRepository<LoginSecretKeysPair, String> {
 
     @Override
     @Transactional
-    KeyPair save(KeyPair keyPair);
+    LoginSecretKeysPair save(LoginSecretKeysPair loginSecretKeysPair);
 
-    @Query("SELECT k FROM KeyPair k WHERE k.emailLogin=?1")
-    KeyPair getById(String loginEmail);
+    @Query("SELECT k FROM LoginSecretKeysPair k WHERE k.emailLogin=?1")
+    LoginSecretKeysPair getById(String loginEmail);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM KeyPair k WHERE k.expirationDate <= ?1")
-    Stream<KeyPair> deleteAllExpiredTokens(LocalDateTime localDateTime);
+    @Query("SELECT k.emailLogin FROM LoginSecretKeysPair k WHERE k.expirationDate <=?1")
+    List<String> findAllExpiredTokensLogins(OffsetDateTime now);
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM KeyPair k WHERE k.emailLogin=?1")
+    @Query("DELETE FROM LoginSecretKeysPair k WHERE k.expirationDate <= ?1")
+    void deleteAllExpiredTokens(OffsetDateTime now);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM LoginSecretKeysPair k WHERE k.emailLogin=?1")
     int deleteById(String loginEmail);
 }

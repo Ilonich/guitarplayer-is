@@ -1,69 +1,48 @@
 package ru.ilonich.igps.model;
 
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import ru.ilonich.igps.model.enumerations.Role;
 
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 
-public final class AnonymousUser implements Authentication {
+public final class AnonymousUser {
+    private static final String NAME = "Anonymous";
+    private static final User MOCK_USER = new User(1, null, null, false, false, NAME, null, 0, 0, null, null, null);
+    public static final Authentication ANONYMOUS_TOKEN = new AnonymousAuthenticationToken(MOCK_USER);
 
-    public static final AnonymousUser ANONYMOUS_TOKEN = new AnonymousUser();
+    private static class AnonymousAuthenticationToken extends AbstractAuthenticationToken {
+        private static final long serialVersionUID = 123456L;
 
-    private final String mock = "Anonymous";
-    private final Set<GrantedAuthority> authorities = Collections.singleton(Role.ANONYMOUS);
+        private final Object principal;
 
-    private AnonymousUser(){}
+        private AnonymousAuthenticationToken(User mock) {
+            super(Collections.singletonList(Role.ANONYMOUS));
+            this.principal = mock;
+            super.setAuthenticated(true);
+        }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
-    }
+        @Override
+        public Object getCredentials() {
+            return "";
+        }
 
-    @Override
-    public Object getCredentials() {
-        return mock;
-    }
+        @Override
+        public Object getPrincipal() {
+            return principal;
+        }
 
-    @Override
-    public Object getDetails() {
-        return null;
-    }
+        @Override
+        public String getName() {
+            return NAME;
+        }
 
-    @Override
-    public Object getPrincipal() {
-        return mock;
-    }
+        @Override
+        public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
+            throw new IllegalArgumentException("Anonymous user is authenticated by default, but has limited permissions");
+        }
 
-    @Override
-    public boolean isAuthenticated() {
-        return true;
-    }
-
-    @Override
-    public void setAuthenticated(boolean isAuthenticated) throws IllegalArgumentException {
-        throw new IllegalArgumentException("Anonymous user always is authenticated");
-    }
-
-    @Override
-    public boolean equals(Object another) {
-        return another instanceof AnonymousUser;
-    }
-
-    @Override
-    public String toString() {
-        return mock;
-    }
-
-    @Override
-    public int hashCode() {
-        return mock.hashCode();
-    }
-
-    @Override
-    public String getName() {
-        return mock;
+        @Override
+        public void eraseCredentials(){}
     }
 }
