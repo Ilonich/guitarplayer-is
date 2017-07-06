@@ -56,6 +56,10 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("*.{ico}")
                 .antMatchers("*.{html}")
                 .antMatchers("*.{css}")
+                .antMatchers("*.{ttf}")
+                .antMatchers("*.{woff}")
+                .antMatchers("*.{eot}")
+                .antMatchers("*.{svg}")
                 .antMatchers("*.{woff2}");
     }
 

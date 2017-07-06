@@ -32,14 +32,6 @@ export class HeaderComponent implements AfterViewInit {
     'register': ''
   };
 
-  errorMessages = {
-    'login': {
-      '404':        'Не в ту степь',
-      '403':        'Не верный логин или пароль',
-      '500':        'Сервер подавился',
-    }
-  };
-
   constructor(private logger: LoginingResolverService, private authService: AuthenticationService, private cdref: ChangeDetectorRef) {
     this.logger.stateFeed.subscribe(loginState => {
       console.log('SUBSCRIPTION INVOKE');
@@ -58,32 +50,37 @@ export class HeaderComponent implements AfterViewInit {
   }
 
   auth(): void {
-    this.authService.authenticate(this.loginComp.loginForm.value).subscribe(
-      empty => {
-        this.errors['login'] = empty;
-        console.log('auth complete');
-      },
-      error => {
-        console.log(error);
-        const loginError = this.errorMessages['login'];
-        this.errors['login'] = loginError[error.status];
-        console.log(this.errors['login']);
-    });
-  }
-
-  logout(): void {
-    this.authService.logout().subscribe(
-        message => {
-          console.log(message);
-        },
-        error => {
-          console.log(error);
-        }
-    );
+      this.authService.authenticate(this.loginComp.loginForm.value).subscribe(
+          empty => {
+              this.errors['login'] = empty;
+          },
+          error => {
+              this.errors['login'] = error.details.join('. ');
+          }
+      );
   }
 
   reg(): void {
-    console.log(this.registerComp.registerForm.value);
+      this.authService.register(this.registerComp.registerForm.value).subscribe(
+          empty => {
+              this.errors['register'] = empty;
+          },
+          error => {
+              this.errors['register'] = error.details.join('. ');
+          }
+      );
+
+  }
+
+  logout(): void {
+      this.authService.logout().subscribe(
+          message => {
+              console.log(message);
+          },
+          error => {
+              console.log(error);
+          }
+      );
   }
 
   closeModals(): void {

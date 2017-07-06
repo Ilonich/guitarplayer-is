@@ -55,8 +55,7 @@ public class WebConfig {
             connector.setScheme("https");
             connector.setSecure(true);
             connector.setParseBodyMethods("POST,PUT");
-
-            connector.addUpgradeProtocol(new Http2Protocol()); // TODO https://stackoverflow.com/questions/38612704/enable-http2-with-tomcat-in-spring-boot/43207609
+            //connector.addUpgradeProtocol(new Http2Protocol()); // TODO https://stackoverflow.com/questions/38612704/enable-http2-with-tomcat-in-spring-boot/43207609
             connector.setProperty("socket.appReadBufSize", "87380");
             connector.setProperty("socket.rxBufSize", "87380");
             connector.setProperty("socket.performanceLatency", "0");

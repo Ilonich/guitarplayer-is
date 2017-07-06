@@ -83,7 +83,6 @@ export class RegisterFormComponent implements OnInit {
     /* https://github.com/sabrio/ng2-validation-manager переделать*/
     this.registerForm.valueChanges
       .subscribe(data => this.onValueChanged(data));
-
     this.onValueChanged();
   }
 
@@ -114,6 +113,7 @@ export class RegisterFormComponent implements OnInit {
             }
           }
         }
+
       }
     }
   }
