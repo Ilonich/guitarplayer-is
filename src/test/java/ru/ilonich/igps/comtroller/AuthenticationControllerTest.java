@@ -1,7 +1,5 @@
 package ru.ilonich.igps.comtroller;
 
-
-import com.google.common.cache.CacheLoader;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
@@ -70,7 +68,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void locale() throws Exception {
-        mockMVC.perform(post("/api/authenticate")
+        mockMVC.perform(post("/api/authenticate").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new LoginTO("mod@igps.ru","wrongPassword")))
                 .cookie(new Cookie("locale", "en")))
@@ -90,7 +88,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Transactional(propagation = Propagation.NEVER)
     public void registerSuccess() throws Exception {
         RegisterTO registerTO = new RegisterTO("someone", "test@test.com", "12345", "12345");
-        MvcResult result = mockMVC.perform(post("/api/register")
+        MvcResult result = mockMVC.perform(post("/api/register").secure(true)
         .contentType(MediaType.APPLICATION_JSON)
         .content(writeValue(registerTO)))
                 .andExpect(status().is(201))
@@ -121,7 +119,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
         String csrf = HmacSigner.getJwtClaim(cookie.getValue(), CSRF_CLAIM_HEADER.toString());
         String digest = HmacSigner.encodeMac(secret, digestMessage, HMAC_SHA_256.toString());
         keysStoreService.remove("mod@igps.ru");
-        MvcResult result = mockMVC.perform(get("/api/logout").header(X_DIGEST.toString(), digest)
+        MvcResult result = mockMVC.perform(get("/api/logout").header(X_DIGEST.toString(), digest).secure(true)
                 .header(X_ONCE.toString(), date)
                 .header(CSRF_CLAIM_HEADER.toString(), csrf)
                 .cookie(afterAuthResult.getResponse().getCookies())
@@ -132,7 +130,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerEmailInvalid() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
         .contentType(MediaType.APPLICATION_JSON)
         .content(writeValue(new RegisterTO("someone", "asd@@.asd.ro", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -142,7 +140,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameAlreadyExists() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("Модератор", "asd@asd.ri", "12345", "12345"))))
                 .andDo(print());
@@ -150,7 +148,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameInvalidPattern() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
         .contentType(MediaType.APPLICATION_JSON)
         .content(writeValue(new RegisterTO("123\r\n 1234  1235", "asd@asd.ri", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -160,7 +158,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameInvalidLength() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("1", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -170,7 +168,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameInvalidBlank() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -180,7 +178,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerPasswordsNotEquals() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("fga", "asd@asd.ry", "123455", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -190,7 +188,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUnsafeHtml() throws Exception {
-        mockMVC.perform(post("/api/register")
+        mockMVC.perform(post("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("<script>alert()</script", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())

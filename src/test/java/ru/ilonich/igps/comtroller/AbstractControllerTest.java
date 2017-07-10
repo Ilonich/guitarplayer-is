@@ -82,7 +82,7 @@ public abstract class AbstractControllerTest {
         LoginTO loginTO = new LoginTO();
         loginTO.setLogin(login);
         loginTO.setPassword(password);
-        ResultActions result = mockMVC.perform(post("/api/authenticate")
+        ResultActions result = mockMVC.perform(post("/api/authenticate").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(loginTO)));
         return result;
@@ -132,7 +132,7 @@ public abstract class AbstractControllerTest {
             default:
                 throw new IllegalArgumentException();
         }
-        return builder.header(X_DIGEST.toString(), digest)
+        return builder.secure(true).header(X_DIGEST.toString(), digest)
                 .header(X_ONCE.toString(), date)
                 .header(CSRF_CLAIM_HEADER.toString(), csrf)
                 .cookie(afterAuthResult.getResponse().getCookies())

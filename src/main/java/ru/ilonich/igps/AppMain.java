@@ -17,6 +17,7 @@ import org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration
 import org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.TransactionAutoConfiguration;
 import org.springframework.boot.autoconfigure.transaction.jta.JtaAutoConfiguration;
+import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.*;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
@@ -40,7 +41,8 @@ import java.util.stream.Stream;
         MultipartAutoConfiguration.class, WebClientAutoConfiguration.class,
         WebSocketAutoConfiguration.class, ConfigurationPropertiesAutoConfiguration.class,
         ProjectInfoAutoConfiguration.class, HibernateJpaAutoConfiguration.class, JtaAutoConfiguration.class,
-        SpringDataWebAutoConfiguration.class, ServerPropertiesAutoConfiguration.class
+        SpringDataWebAutoConfiguration.class, ServerPropertiesAutoConfiguration.class,
+        ValidationAutoConfiguration.class
 })
 @Import({WebConfig.class})
 public class AppMain extends SpringBootServletInitializer {
@@ -48,7 +50,7 @@ public class AppMain extends SpringBootServletInitializer {
     public static void main(String[] args) {
         ApplicationContext ac = SpringApplication.run(AppMain.class, args);
         //ApplicationContext ac = configureApplication(new SpringApplicationBuilder()).run(args);
-        Stream.of(ac.getBeanDefinitionNames()).forEach(System.out::println);
+        //Stream.of(ac.getBeanDefinitionNames()).forEach(System.out::println);
     }
 
     @Override

@@ -23,6 +23,7 @@ export class ErrorInfo {
             const body = err.json() || '';
             if (body.cause === null || body.cause === undefined) {
                 cause = 'Unknown';
+                details.push(err.toString());
                 details.push(err.text());
                 url = err.url;
                 console.error('Response body has wrong format, expected format - json [ErrorInfo(url, cause, details)]');

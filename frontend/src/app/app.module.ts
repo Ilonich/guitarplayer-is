@@ -1,4 +1,4 @@
-import { BrowserModule, DOCUMENT } from '@angular/platform-browser';
+import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpModule, XHRBackend, RequestOptions } from '@angular/http';
@@ -9,7 +9,6 @@ import { LoginingResolverService } from './services/logining-resolver.service';
 import { DocumentRef } from './services/document-ref.service';
 import { AuthenticationService } from './services/authentication.service';
 import { TokenHttpInterceptor } from './interceptor/token-http-interceptor';
-
 
 export function httpFactory(
   xhrBackend: XHRBackend,

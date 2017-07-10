@@ -55,7 +55,7 @@ export class HeaderComponent implements AfterViewInit {
               this.errors['login'] = empty;
           },
           error => {
-              this.errors['login'] = error.details.join('. ');
+              this.handleError('login', error);
           }
       );
   }
@@ -66,7 +66,7 @@ export class HeaderComponent implements AfterViewInit {
               this.errors['register'] = empty;
           },
           error => {
-              this.errors['register'] = error.details.join('. ');
+              this.handleError('register', error);
           }
       );
 
@@ -111,5 +111,17 @@ export class HeaderComponent implements AfterViewInit {
       setTimeout(() => this.canRegister = () => this.registerComp.registerForm.valid, 0);
       this.cdref.detectChanges(); //ExpressionChangedAfterItHasBeenCheckedError
     }
+  }
+
+  private handleError(formName: string, error: any): void {
+      if (error.cause === 'Unknown'){
+          this.errors[formName] = 'Нет соединения с сервером';
+          console.log(error);
+      } else if (error.status === 500) {
+          this.errors[formName] = 'Внутренняя ошибка сервера';
+          console.log(error);
+      } else {
+          this.errors[formName] = error.details.join('. ');
+      }
   }
 }

@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-import {LoginTo} from '../classes/login-to';
+import { LoginTo } from '../classes/login-to';
 import 'rxjs/add/operator/map';
 import 'rxjs/add/operator/catch';
-import {Authentication} from '../classes/authentication';
+import { Authentication } from '../classes/authentication';
 import { Observable } from 'rxjs/Observable';
 import { TokenHttpInterceptor } from '../interceptor/token-http-interceptor';
-import {ErrorInfo} from "../classes/error-info";
+import { ErrorInfo } from '../classes/error-info';
 
 @Injectable()
 export class AuthenticationService {
@@ -35,7 +35,7 @@ export class AuthenticationService {
   }
 
   public register(regTo: any): Observable<any> {
-      return this.http.post('/api/authenticate', JSON.stringify(regTo))
+      return this.http.post('/api/register', JSON.stringify(regTo))
           .map(response => {
               const authTo = response.json();
               const headers = response.headers;
