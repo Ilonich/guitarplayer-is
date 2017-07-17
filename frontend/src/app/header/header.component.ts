@@ -16,13 +16,13 @@ export class HeaderComponent implements AfterViewInit {
 
   @ViewChildren(LoginFormComponent)
   public someLoginForms: QueryList<LoginFormComponent>;
-  
+
   @ViewChildren(RegisterFormComponent)
   public someRegisterForms: QueryList<RegisterFormComponent>;
-  
+
   private loginComp: LoginFormComponent;
   private registerComp: RegisterFormComponent;
-  
+
   private formsDetector: Observable<any>;
 
   state: LoginState;
@@ -47,6 +47,11 @@ export class HeaderComponent implements AfterViewInit {
     this.formsDetector.subscribe(() => {
       this.initForms();
     });
+  }
+
+  openSidebar(): void {
+    jQuery('#leftsidebar').toggleClass('toggled');
+    jQuery('#page-content-wrapper').toggleClass('moved');
   }
 
   auth(): void {
@@ -109,7 +114,7 @@ export class HeaderComponent implements AfterViewInit {
       this.registerComp = this.someRegisterForms.first;
       setTimeout(() => this.canLogin = () => this.loginComp.loginForm.valid, 0);
       setTimeout(() => this.canRegister = () => this.registerComp.registerForm.valid, 0);
-      this.cdref.detectChanges(); //ExpressionChangedAfterItHasBeenCheckedError
+      this.cdref.detectChanges(); // ExpressionChangedAfterItHasBeenCheckedError
     }
   }
 
@@ -121,6 +126,7 @@ export class HeaderComponent implements AfterViewInit {
           this.errors[formName] = 'Внутренняя ошибка сервера';
           console.log(error);
       } else {
+          console.log(error);
           this.errors[formName] = error.details.join('. ');
       }
   }

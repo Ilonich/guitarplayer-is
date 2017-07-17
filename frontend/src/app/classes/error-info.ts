@@ -20,7 +20,12 @@ export class ErrorInfo {
         let cause: string;
         let details: string[] = [];
         if (err instanceof Response) {
-            const body = err.json() || '';
+          let body;
+          try {
+            body = err.json();
+          } catch (error) {
+            body = {};
+          }
             if (body.cause === null || body.cause === undefined) {
                 cause = 'Unknown';
                 details.push(err.toString());

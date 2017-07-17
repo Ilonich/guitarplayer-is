@@ -14,7 +14,7 @@
     <span class="pull-right" *ngIf="formErrors.password">{{formErrors.password}}</span>
     <input type="password" class="form-control" id="password" placeholder="Не менее 5 символов" formControlName="password">
   </div>
-  <div class="form-group" [ngClass]="{'has-success': passwordcopy.valid && !registerForm.errors, 'has-error': passwordcopy.dirty && !passwordcopy.valid && registerForm.errors}">
+  <div class="form-group" [ngClass]="{'has-success': passwordcopy.valid && !registerForm.errors, 'has-error': passwordcopy.dirty && registerForm.hasError('notEquals')}">
     <label for="passwordcopy">Повторите пароль </label><i *ngIf="passwordcopy.valid && !registerForm.errors" class="fa fa-check-square-o fa-pull-right" aria-hidden="true"></i>
     <span class="pull-right" *ngIf="formErrors.passwordcopy">{{formErrors.passwordcopy}}</span>
     <input type="password" class="form-control" id="passwordcopy" formControlName="passwordcopy">

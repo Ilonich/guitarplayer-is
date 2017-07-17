@@ -1,0 +1,28 @@
+body {
+  overflow-x: hidden;
+}
+
+#page-content-wrapper {
+  width: 100%;
+  position: relative;
+  padding: 10px;
+  transition: padding-left 0.5s ease;
+}
+
+#page-content-wrapper.moved {
+  position: relative;
+  padding-left: 260px;
+}
+
+@media(min-width:768px) {
+  #page-content-wrapper {
+    padding: 15px;
+    position: relative;
+  }
+
+  #page-content-wrapper.moved {
+    position: relative;
+    padding-left: 265px;
+  }
+}
+

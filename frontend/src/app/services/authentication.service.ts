@@ -25,7 +25,7 @@ export class AuthenticationService {
                     headers.get('X-Secret'), headers.get('WWW-Authenticate'), headers.get('X-HMAC-CSRF'), authTo.roles));
                 return '';
             } else {
-                console.error("Missing 'X-TokenAccess' header from response");
+                console.error('Missing \'X-TokenAccess\' header from response');
                 return 'Сервер в неадеквате';
             }
         })
@@ -54,9 +54,9 @@ export class AuthenticationService {
   }
 
   public logout(): Observable<any> {
+      this.http.switchState();
       return this.http.get('/api/logout')
           .map(response => {
-              this.http.switchState();
               if (response.status === 200) {
                   return 'Logout success';
               } else {

@@ -8,7 +8,7 @@ import java.util.Collections;
 
 public final class AnonymousUser {
     private static final String NAME = "Anonymous";
-    private static final User MOCK_USER = new User(1, null, null, false, false, NAME, null, 0, 0, null, null, null);
+    private static final User MOCK_USER = new User(1, null, null, false, false, NAME, null, 0, 0, null, null, Role.ANONYMOUS);
     public static final Authentication ANONYMOUS_TOKEN = new AnonymousAuthenticationToken(MOCK_USER);
 
     private static class AnonymousAuthenticationToken extends AbstractAuthenticationToken {

@@ -1,7 +1,3 @@
-/* Как же я по началу заебался c асинхронной валидацией, учитывая мои скудные знания angular,
-    хорошо спустя день догадался начать гуглить.
- Спасибо этой теме => https://github.com/angular/angular/issues/6895 */
-
 import {
     AbstractControl, NG_ASYNC_VALIDATORS, AsyncValidatorFn, ValidationErrors,
     AsyncValidator

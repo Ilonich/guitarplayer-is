@@ -4,7 +4,7 @@ export class QstAsyncValidatorWrapper {
     public static debounce(asyncValidator: (c: AbstractControl) => Observable<any>,
                            time: number = 500): (c: AbstractControl) => Observable<any> {
         /*Starting a debouncing observable*/
-        const subject: Subject<AbstractControl> = new Subject();
+        const subject: Subject<AbstractControl> = new Subject<AbstractControl>();
 
         const obs: Observable<any> = subject
             .debounceTime(time)

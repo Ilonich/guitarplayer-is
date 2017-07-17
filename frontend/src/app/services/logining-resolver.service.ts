@@ -4,6 +4,7 @@ import { Authentication } from '../classes/authentication';
 import {BehaviorSubject, Observable, AnonymousSubject, ConnectableObservable} from 'rxjs/Rx';
 
 const NO_LOGIN: LoginState = new LoginState(false, null);
+const SOME_LOGIN: LoginState = new LoginState(true, 'Тестовый юзер');
 
 @Injectable()
 export class LoginingResolverService {
@@ -16,7 +17,7 @@ export class LoginingResolverService {
         this.storage = window.localStorage;
         const auth = this.getAuthentication();
         this.currentToken = auth;
-        this.subject = new BehaviorSubject<LoginState>(auth !== null ? new LoginState(true, auth.username) : NO_LOGIN);
+        this.subject = new BehaviorSubject<LoginState>(auth !== null ? new LoginState(true, auth.username) : NO_LOGIN); // SOME_LOGIN for different view
         this.stateFeed = this.subject.publish();
         console.log('LoginingResolverService CREATED');
     }

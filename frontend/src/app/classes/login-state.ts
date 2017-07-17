@@ -1,7 +1,7 @@
 export class LoginState {
-  logged: Boolean;
-  username: String;
-  constructor(logged: Boolean, username: String){
+  logged: boolean;
+  username: string;
+  constructor(logged: boolean, username: string){
     this.logged = logged;
     this.username = username;
   }
