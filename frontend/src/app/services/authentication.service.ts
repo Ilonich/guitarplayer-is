@@ -54,7 +54,6 @@ export class AuthenticationService {
   }
 
   public logout(): Observable<any> {
-      this.http.switchState();
       return this.http.get('/api/logout')
           .map(response => {
               if (response.status === 200) {
@@ -65,6 +64,7 @@ export class AuthenticationService {
               }
           })
           .catch(err => {
+              this.http.switchState();
               return ErrorInfo.mapAnyToErrorInfo(err);
           });
   }

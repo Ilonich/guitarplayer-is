@@ -42,9 +42,13 @@ const appRoutes: Routes = [
     ]
   },
   {
-    path: '**',
+    path: '404',
     component: PageNotFoundComponent,
     data: { title: '404 - Страница не найдена' }
+  },
+  {
+    path: '**',
+    redirectTo: '/404'
   }
 ];
 

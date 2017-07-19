@@ -76,6 +76,8 @@ export class TokenHttpInterceptor extends Http {
         }
         options.headers.append('X-HMAC-CSRF', auth.csrf);
         options.headers.append('X-Once', date);
+      } else {
+        console.log('User should be authenticated');
       }
     }
     options.headers.append('Content-Type', 'application/json');

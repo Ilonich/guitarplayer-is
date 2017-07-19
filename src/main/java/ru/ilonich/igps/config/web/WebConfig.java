@@ -4,15 +4,19 @@ import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11Nio2Protocol;
 import org.apache.coyote.http2.Http2Protocol;
 import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
+import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
+import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
+import org.springframework.boot.web.servlet.ErrorPage;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
 
@@ -77,10 +81,17 @@ public class WebConfig {
         return connector;
     }
 
+    @Bean
+    public EmbeddedServletContainerCustomizer containerCustomizer() {
+        return container -> container.addErrorPages(new ErrorPage(HttpStatus.NOT_FOUND, "/404"));
+    }
+
 
     @Bean
     public DispatcherServlet dispatcherServlet(){
-        return new DispatcherServlet();
+        DispatcherServlet dispatcherServlet = new DispatcherServlet();
+        dispatcherServlet.setThrowExceptionIfNoHandlerFound(true);
+        return dispatcherServlet;
     }
 
     @Bean
