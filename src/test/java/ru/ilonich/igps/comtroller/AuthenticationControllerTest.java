@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 
 import static org.junit.Assert.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -58,7 +60,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
             assertTrue(result.getResponse().getCookie(JWT_APP_COOKIE.toString()) != null);
         }
         AuthTO user = readValue(result.getResponse().getContentAsString(), AuthTO.class);
-        assertEquals(user.getUsername(), UserTestData.moderator.getUsername());
+        assertEquals(user.getUsername(), UserTestData.MODERATOR.getUsername());
     }
 
     @Test
@@ -72,7 +74,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new LoginTO("mod@igps.ru","wrongPassword")))
                 .cookie(new Cookie("locale", "en")))
-        .andDo(print()).andExpect(content().string("{\"url\":\"http://localhost/api/authenticate\",\"cause\":\"BadCredentialsException\",\"details\":[\"Wrong login or password\"]}"));
+        .andDo(print()).andExpect(content().string(containsString("Wrong login or password")));
     }
 
 
@@ -88,7 +90,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Transactional(propagation = Propagation.NEVER)
     public void registerSuccess() throws Exception {
         RegisterTO registerTO = new RegisterTO("someone", "test@test.com", "12345", "12345");
-        MvcResult result = mockMVC.perform(post("/api/register").secure(true)
+        MvcResult result = mockMVC.perform(put("/api/register").secure(true)
         .contentType(MediaType.APPLICATION_JSON)
         .content(writeValue(registerTO)))
                 .andExpect(status().is(201))
@@ -99,6 +101,36 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
         assertTrue(!result.getResponse().getHeader(X_TOKEN_ACCESS.toString()).isEmpty());
         assertTrue(result.getResponse().getCookie(JWT_APP_COOKIE.toString()) != null);
         assertTrue(keysStoreService.get(registerTO.getEmail()) != null);
+    }
+
+    @Test
+    public void resetSuccess() throws Exception {
+        mockMVC.perform(post("/api/reset").secure(true)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(UserTestData.TYPICAL_USER.getEmail())))
+                .andExpect(status().is(202))
+                .andDo(print());
+
+    }
+
+    @Test
+    public void resetNotFound() throws Exception {
+        mockMVC.perform(post("/api/reset").secure(true)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue("Nothing@asd.as")))
+                .andExpect(status().is(404))
+                .andDo(print());
+    }
+
+    @Test
+    public void resetLock() throws Exception {
+        mockMVC.perform(post("/api/reset").secure(true)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(UserTestData.TYPICAL_USER.getEmail())));
+        mockMVC.perform(post("/api/reset").secure(true)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(writeValue(UserTestData.TYPICAL_USER.getEmail())))
+                .andExpect(status().is(423));
     }
 
     @Test(expected = ExpiredAuthenticationException.class)
@@ -130,7 +162,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerEmailInvalid() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
         .contentType(MediaType.APPLICATION_JSON)
         .content(writeValue(new RegisterTO("someone", "asd@@.asd.ro", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -140,7 +172,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameAlreadyExists() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("Модератор", "asd@asd.ri", "12345", "12345"))))
                 .andDo(print());
@@ -148,7 +180,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameInvalidPattern() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
         .contentType(MediaType.APPLICATION_JSON)
         .content(writeValue(new RegisterTO("123\r\n 1234  1235", "asd@asd.ri", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -158,7 +190,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameInvalidLength() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("1", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -168,7 +200,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUsernameInvalidBlank() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -178,7 +210,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerPasswordsNotEquals() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("fga", "asd@asd.ry", "123455", "12345"))))
                 .andExpect(status().isUnprocessableEntity())
@@ -188,7 +220,7 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test
     public void registerUnsafeHtml() throws Exception {
-        mockMVC.perform(post("/api/register").secure(true)
+        mockMVC.perform(put("/api/register").secure(true)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(writeValue(new RegisterTO("<script>alert()</script", "asd@asd.ry", "12345", "12345"))))
                 .andExpect(status().isUnprocessableEntity())

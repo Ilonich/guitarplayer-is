@@ -5,8 +5,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.User;
+import ru.ilonich.igps.model.tokens.PasswordResetToken;
 import ru.ilonich.igps.model.tokens.VerificationToken;
+import ru.ilonich.igps.repository.tokens.PasswordResetTokenRepository;
 import ru.ilonich.igps.repository.tokens.VerificationTokenRepository;
+import ru.ilonich.igps.utils.PasswordUtil;
 
 @Repository("userRepository")
 public class UserRepositoryImpl implements UserRepository {
@@ -16,6 +19,9 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Autowired
     private VerificationTokenRepository verificationTokenRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
 
     @Override
     public User getById(Integer id) {
@@ -34,7 +40,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsByEmail(String email) {
-        return crudUser.existsByEmail(email);
+        return crudUser.existsByEmail(email.toLowerCase());
     }
 
     @Override
@@ -50,16 +56,38 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public boolean confirmRegistration(String token) {
+    @Transactional
+    public User confirmVerification(String token) {
         VerificationToken verificationToken = verificationTokenRepository.findByToken(token);
         if (verificationToken != null){
             User user = verificationToken.getUser();
             user.setEnabled(true);
             crudUser.save(user);
-            return true;
+            verificationTokenRepository.delete(verificationToken);
+            return user;
         }
-        return false;
+        return null;
     }
 
 
+    @Override
+    @Transactional
+    public PasswordResetToken createPasswordResetTokenForUserByEmail(String email) throws HmacException {
+        User toReset = crudUser.findByEmail(email.toLowerCase());
+        return toReset == null ? null : passwordResetTokenRepository.save(new PasswordResetToken(toReset));
+    }
+
+    @Override
+    @Transactional
+    public User confirmReset(String token, String newPass) {
+        PasswordResetToken passwordResetToken = passwordResetTokenRepository.findByToken(token);
+        if (passwordResetToken != null){
+            User user = passwordResetToken.getUser();
+            user.setPassword(PasswordUtil.encode(newPass));
+            crudUser.save(user);
+            passwordResetTokenRepository.delete(passwordResetToken);
+            return user;
+        }
+        return null;
+    }
 }

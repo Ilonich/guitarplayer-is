@@ -37,6 +37,7 @@
         <javax.mail.version>1.5.6</javax.mail.version>
         <javax.validation-api.version>1.1.0.Final</javax.validation-api.version>
         <javax.el.version>3.0.0</javax.el.version>
+        <greenmail.version>1.5.5</greenmail.version>
     </properties>
 
     <build>
@@ -213,6 +214,12 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>${greenmail.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

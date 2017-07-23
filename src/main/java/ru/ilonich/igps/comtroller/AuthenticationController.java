@@ -16,6 +16,7 @@ import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.service.AuthenticationService;
 import ru.ilonich.igps.service.LoginAttemptService;
+import ru.ilonich.igps.service.ResetAttemptService;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.ErrorInfo;
 import ru.ilonich.igps.to.LoginTO;
@@ -36,6 +37,9 @@ public class AuthenticationController {
     private LoginAttemptService loginAttemptService;
 
     @Autowired
+    private ResetAttemptService resetAttemptService;
+
+    @Autowired
     private AuthenticationService authenticationService;
 
     @Autowired
@@ -51,13 +55,28 @@ public class AuthenticationController {
         return result;
     }
 
-    @PostMapping(value = "/register")
-    public ResponseEntity<AuthTO> register(@Valid @RequestBody RegisterTO registerTO, HttpServletResponse response) throws Exception {
-        User registered = authenticationService.register(registerTO);
+    @PostMapping(value = "/reset")
+    public ResponseEntity initiateReset(@RequestBody String email, HttpServletRequest request) throws Exception {
+        if (resetAttemptService.isBlocked(request.getRemoteAddr())){
+            return new ResponseEntity(HttpStatus.LOCKED);
+        }
+        log.info("{} forgot password, trying to reset", email);
+        if (authenticationService.initiateReset(email, getAppConfirmResetUrl(request))) {
+            resetAttemptService.attempt(request.getRemoteAddr());
+            return new ResponseEntity(HttpStatus.ACCEPTED);
+        } else {
+            resetAttemptService.attempt(request.getRemoteAddr());
+            return new ResponseEntity(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PutMapping(value = "/register")
+    public ResponseEntity<AuthTO> register(@Valid @RequestBody RegisterTO registerTO, HttpServletRequest request, HttpServletResponse response) throws Exception {
+        User user = authenticationService.register(registerTO, getAppConfirmEmailUrl(request));
         URI uriOfNewResource = ServletUriComponentsBuilder.fromCurrentContextPath()
-                .path("#/users/{id}")
-                .buildAndExpand(registered.getId()).toUri();
-        log.info("New user registered - {}", registered.toString());
+                .path("users/{id}")
+                .buildAndExpand(user.getId()).toUri();
+        log.info("New user registered - {}", user.toString());
         return ResponseEntity.created(uriOfNewResource)
                 .body(authenticationService.authenticate(registerTO.asLoginTO(), response));
     }
@@ -71,5 +90,13 @@ public class AuthenticationController {
     public ResponseEntity<ErrorInfo> badCredentials(HttpServletRequest req, BadCredentialsException e) {
         loginAttemptService.loginFailed(req.getRemoteAddr());
         return exceptionInfoHandler.getErrorInfoResponseEntity(req, e, BAD_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+    }
+
+    private String getAppConfirmEmailUrl(HttpServletRequest request) {
+        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-email";
+    }
+
+    private String getAppConfirmResetUrl(HttpServletRequest request) {
+        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-reset";
     }
 }

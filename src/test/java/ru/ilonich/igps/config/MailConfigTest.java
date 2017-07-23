@@ -16,18 +16,20 @@ public class MailConfigTest {
     @Test
     @Ignore
     public void javaMailService() throws Exception {
+        Properties mailProperties = new Properties();
+        mailProperties.put("mail.smtp.auth", "true");
+        mailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        mailProperties.put("mail.smtp.starttls.enable", "true");
+
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setPort(465);
         javaMailSender.setHost("smtp.yandex.ru");
         javaMailSender.setDefaultEncoding("UTF-8");
         javaMailSender.setUsername("");
         javaMailSender.setPassword("");
-        Properties mailProperties = new Properties();
-        mailProperties.put("mail.smtp.auth", "true");
-        mailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        mailProperties.put("mail.smtp.starttls.enable", "true");
         javaMailSender.setJavaMailProperties(mailProperties);
         javaMailSender.setProtocol("smtps");
+
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo("");
         email.setFrom("");

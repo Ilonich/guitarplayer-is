@@ -84,3 +84,6 @@ INSERT INTO market_items (name, description, type, cost, contacts, user_id) VALU
 
 INSERT INTO registration_verifications (id, token, expiries) VALUES
   (100003, 'YzZhZDk5YjAtYWM1ZC00YjgxLWEyNTAtYWY3MmFiNmFmZGIz', '2017-06-30 18:38:24.995000');
+
+INSERT INTO password_reset_verifications (id, token, expiries) VALUES
+  (100003, 'ZjQ2YTc3NDYtODc5MC00Yjc0LWFiMjYtMzVlODYzN2ZhNTE1', '2017-07-24 04:06:39.801000');

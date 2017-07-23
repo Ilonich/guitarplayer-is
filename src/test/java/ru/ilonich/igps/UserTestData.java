@@ -22,12 +22,11 @@ public class UserTestData {
             Objects.equals(expected.getRating(), actual.getRating()) &&
             Objects.equals(expected.getRegistered(), actual.getRegistered()) &&
             Objects.equals(expected.getAuthority(), actual.getAuthority()) &&
-            Objects.equals(expected.getLocation(), actual.getLocation()) &&
-            Objects.equals(expected.getRoles(), actual.getRoles()))));
+            Objects.equals(expected.getLocation(), actual.getLocation()))));
 
-    public static final User moderator = new User(100001, "mod@igps.ru", "$2a$10$QSbul4JCPb/pSCrZ8E7dQuZIWWMHs4WFYHW9kSAt9UUUcuca7gt7m", true, true, "Модератор", "Я хороший модератор, у меня есть кофе", 0, 1495011510000L, Authority.MEMBER, Location.UNKNOWN, Role.MODERATOR, Role.USER); //banme
-    public static final User admin = new User(100000, "admin@igps.ru", "$2a$10$Zj7Perk/znZzHmk8.07ByuJOMIGpt/2K7fjZ52HbX0BCOgDJ7ixtC", true, true, "Админ", "Я хороший админ, у меня есть кот", -2, 1494840045000L, Authority.MEMBER, Location.UNKNOWN, Role.ADMIN, Role.CONFIDANT, Role.MODERATOR, Role.USER); //codeme
-    public static final User typicalUser = new User(100003, "voter@yandex.ru", "$2a$10$GE5HKnDO8gyjfAez8LaJ0eOHntisGgBnUHFFr10tAtI86Cyz0F1HS", false, true, "Пользователь", "Я хороший парень, у меня есть ружье", 1, 1495205506000L, Authority.REGULAR, Location.UNKNOWN, Role.USER); //likeme
-    public static final User confidant = new User(100002, "friend@igps.ru", "$2a$10$D1cWOPMmYN4Qf67pY/LM7elrwEG.3am1SFP2zjlvx7Lk88egoUYBK", true, true, "Представитель", "Я хороший знакомый админа, у меня есть сани", 0, 1495116562000L, Authority.MEMBER, Location.UNKNOWN, Role.CONFIDANT, Role.USER); //hugme
-    public static final User someNew = new User(null, "newuser@ya.ru", PasswordUtil.encode("something"), false, false, "Новичок", "", 0, 0L, Authority.REGULAR, Location.UNKNOWN, Role.USER);
+    public static final User MODERATOR = new User(100001, "mod@igps.ru", "$2a$10$QSbul4JCPb/pSCrZ8E7dQuZIWWMHs4WFYHW9kSAt9UUUcuca7gt7m", true, true, "Модератор", "Я хороший модератор, у меня есть кофе", 0, 1495011510000L, Authority.MEMBER, Location.UNKNOWN, Role.MODERATOR, Role.USER); //banme
+    public static final User ADMIN = new User(100000, "admin@igps.ru", "$2a$10$Zj7Perk/znZzHmk8.07ByuJOMIGpt/2K7fjZ52HbX0BCOgDJ7ixtC", true, true, "Админ", "Я хороший админ, у меня есть кот", -2, 1494840045000L, Authority.MEMBER, Location.UNKNOWN, Role.ADMIN, Role.CONFIDANT, Role.MODERATOR, Role.USER); //codeme
+    public static final User TYPICAL_USER = new User(100003, "voter@yandex.ru", "$2a$10$GE5HKnDO8gyjfAez8LaJ0eOHntisGgBnUHFFr10tAtI86Cyz0F1HS", false, true, "Пользователь", "Я хороший парень, у меня есть ружье", 1, 1495205506000L, Authority.REGULAR, Location.UNKNOWN, Role.USER); //likeme
+    public static final User CONFIDANT = new User(100002, "friend@igps.ru", "$2a$10$D1cWOPMmYN4Qf67pY/LM7elrwEG.3am1SFP2zjlvx7Lk88egoUYBK", true, true, "Представитель", "Я хороший знакомый админа, у меня есть сани", 0, 1495116562000L, Authority.MEMBER, Location.UNKNOWN, Role.CONFIDANT, Role.USER); //hugme
+    public static final User SOME_NEW = new User(null, "newuser@ya.ru", PasswordUtil.encode("something"), false, false, "Новичок", "", 0, 0L, Authority.REGULAR, Location.UNKNOWN, Role.USER);
 }

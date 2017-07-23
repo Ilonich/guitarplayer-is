@@ -17,7 +17,7 @@ public interface VerificationTokenRepository extends JpaRepository<VerificationT
     VerificationToken save(VerificationToken verificationToken);
 
     @EntityGraph(attributePaths={"user.roles"})
-    @Query("SELECT t FROM VerificationToken t WHERE t.user.id=?1")
+    @Query("SELECT t FROM VerificationToken t WHERE t.user.email=?1")
     VerificationToken findByEmail(String email);
 
     @EntityGraph(attributePaths={"user.roles"})

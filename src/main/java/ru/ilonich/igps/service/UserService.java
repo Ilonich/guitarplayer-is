@@ -10,7 +10,11 @@ public interface UserService extends UserDetailsService, FieldValueExists {
 
     User getById(Integer id);
 
-    VerificationToken registerAndCreateVerificationToken(User user) throws HmacException;
+    User register(User user, String confirmationUrl) throws HmacException;
 
     boolean confirmRegistration(String token);
+
+    boolean initiatePasswordReset(String email, String confirmationUrl) throws HmacException;
+
+    boolean confirmPasswordReset(String token);
 }

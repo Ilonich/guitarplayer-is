@@ -35,7 +35,7 @@ export class AuthenticationService {
   }
 
   public register(regTo: any): Observable<any> {
-      return this.http.post('/api/register', JSON.stringify(regTo))
+      return this.http.put('/api/register', JSON.stringify(regTo))
           .map(response => {
               const authTo = response.json();
               const headers = response.headers;

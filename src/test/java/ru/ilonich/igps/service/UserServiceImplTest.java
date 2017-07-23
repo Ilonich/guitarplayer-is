@@ -11,11 +11,11 @@ import ru.ilonich.igps.config.data.JpaConfig;
 import ru.ilonich.igps.exception.NotFoundException;
 import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
-import ru.ilonich.igps.model.tokens.VerificationToken;
+import ru.ilonich.igps.repository.tokens.PasswordResetTokenRepository;
+import ru.ilonich.igps.repository.tokens.VerificationTokenRepository;
+import ru.ilonich.igps.utils.PasswordUtil;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static ru.ilonich.igps.UserTestData.USER_MODEL_MATCHER;
 
 @SpringBootTest(classes = JpaConfig.class)
@@ -25,10 +25,16 @@ public class UserServiceImplTest {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private VerificationTokenRepository verificationTokenRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository resetTokenRepository;
+
     @Test
     public void getById() throws Exception {
         User user = userService.getById(100003);
-        USER_MODEL_MATCHER.assertEquals(UserTestData.typicalUser, user);
+        USER_MODEL_MATCHER.assertEquals(UserTestData.TYPICAL_USER, user);
     }
 
     @Test(expected = NotFoundException.class)
@@ -39,7 +45,7 @@ public class UserServiceImplTest {
     @Test
     public void loadUserByUsername() throws Exception {
         User user = ((AuthenticatedUser) userService.loadUserByUsername("mod@igps.ru")).getUser();
-        USER_MODEL_MATCHER.assertEquals(UserTestData.moderator, user);
+        USER_MODEL_MATCHER.assertEquals(UserTestData.MODERATOR, user);
     }
 
     @Test(expected = UsernameNotFoundException.class)
@@ -48,10 +54,11 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void registerAndCreateVerificationToken() throws Exception {
-        VerificationToken testToken = userService.registerAndCreateVerificationToken(UserTestData.someNew);
-        assertNotNull(testToken);
-        assertEquals(UserTestData.someNew.getId(), testToken.getId());
+    public void register() throws Exception {
+        User user = userService.register(UserTestData.SOME_NEW, "url");
+        assertNotNull(user);
+        assertEquals(UserTestData.SOME_NEW.getId(), user.getId());
+        assertEquals(UserTestData.SOME_NEW.getId(), verificationTokenRepository.findByEmail(user.getEmail()).getUser().getId());
     }
 
     @Test
@@ -62,6 +69,28 @@ public class UserServiceImplTest {
         assertTrue(confirmed.isEnabled());
     }
 
+    @Test(expected = UnsupportedOperationException.class)
+    public void fieldValueExists() throws Exception {
+        assertTrue(userService.fieldValueExists("Модератор", "username"));
+        assertFalse(userService.fieldValueExists("Somth", "username"));
+        assertTrue(userService.fieldValueExists("mod@igps.rU", "email"));
+        assertFalse(userService.fieldValueExists("asd@asd.ls", "email"));
+        userService.fieldValueExists("", "male");
+    }
 
+    @Test
+    public void initiatePasswordReset() throws Exception {
+        assertTrue(userService.initiatePasswordReset("mod@igps.rU", "url"));
+        assertFalse(userService.initiatePasswordReset("wrong@email.ro", "url"));
+        assertEquals(UserTestData.MODERATOR.getId(), resetTokenRepository.findByEmail(UserTestData.MODERATOR.getEmail()).getUser().getId());
+    }
 
+    @Test
+    public void confirmPasswordReset() throws Exception {
+        String oldPass = UserTestData.TYPICAL_USER.getPassword();
+        assertTrue(userService.confirmPasswordReset("ZjQ2YTc3NDYtODc5MC00Yjc0LWFiMjYtMzVlODYzN2ZhNTE1"));
+        String newPass = userService.getById(UserTestData.TYPICAL_USER.getId()).getPassword();
+        assertTrue(PasswordUtil.isMatch("likeme", oldPass));
+        assertFalse(PasswordUtil.isMatch("likeme", newPass));
+    }
 }

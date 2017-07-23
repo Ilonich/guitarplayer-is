@@ -12,7 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 public interface AuthenticationService {
 
     AuthTO authenticate(LoginTO loginTO, HttpServletResponse response) throws HmacException;
-    public User register(RegisterTO registerTO) throws HmacException;
+    User register(RegisterTO registerTO, String confirmUrl) throws HmacException;
+    boolean initiateReset(String email, String url) throws HmacException;
     void logout(AuthenticatedUser authenticatedUser);
     void authenticateByToken(String username);
     void authenticateAnonymous();

@@ -1,7 +1,6 @@
 package ru.ilonich.igps.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -10,12 +9,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import ru.ilonich.igps.config.security.misc.HmacToken;
-import ru.ilonich.igps.events.OnRegistrationSuccessEvent;
+import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.model.tokens.LoginSecretKeysPair;
 import ru.ilonich.igps.exception.HmacException;
 import ru.ilonich.igps.model.AuthenticatedUser;
-import ru.ilonich.igps.model.User;
-import ru.ilonich.igps.model.tokens.VerificationToken;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
 import ru.ilonich.igps.to.RegisterTO;
@@ -42,9 +39,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private LoginSecretKeysPairStoreService keysStoreService;
-
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public AuthTO authenticate(LoginTO loginTO, HttpServletResponse response) throws HmacException {
@@ -73,10 +67,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public User register(RegisterTO registerTO) throws HmacException {
-        VerificationToken token = userService.registerAndCreateVerificationToken(registerTO.createUser());
-        //eventPublisher.publishEvent(new OnRegistrationSuccessEvent(token.getUser(), LocaleContextHolder.getLocale(), token.getToken(), url));
-        return token.getUser();
+    public User register(RegisterTO registerTO, String confirmUrl) throws HmacException {
+        return userService.register(registerTO.createUser(), confirmUrl);
+    }
+
+    @Override
+    public boolean initiateReset(String email, String url) throws HmacException {
+        return userService.initiatePasswordReset(email, url);
     }
 
     @Override

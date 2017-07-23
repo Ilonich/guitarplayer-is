@@ -5,25 +5,25 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Component;
-import ru.ilonich.igps.events.OnRegistrationSuccessEvent;
+import ru.ilonich.igps.events.OnPasswordResetSuccesEvent;
 
 @Component
-public class RegistrationListener implements ApplicationListener<OnRegistrationSuccessEvent> {
+public class PasswordResetSuccessListener implements ApplicationListener<OnPasswordResetSuccesEvent> {
 
     @Autowired
     JavaMailSender javaMailService;
 
     @Override
-    public void onApplicationEvent(OnRegistrationSuccessEvent event) {
+    public void onApplicationEvent(OnPasswordResetSuccesEvent event) {
         javaMailService.send(constructMessage(event));
     }
 
-    private SimpleMailMessage constructMessage(OnRegistrationSuccessEvent event){
+    private SimpleMailMessage constructMessage(OnPasswordResetSuccesEvent event) {
         SimpleMailMessage email = new SimpleMailMessage();
-        email.setTo(event.getToken().getUser().getEmail());
+        email.setTo(event.getEmail());
         email.setFrom("test@tt.ss");
-        email.setSubject("Registration verification");
-        email.setText(event.getAppUrl() + event.getToken().getToken());
+        email.setSubject("New password");
+        email.setText(event.getNewPass());
         return email;
     }
 }
