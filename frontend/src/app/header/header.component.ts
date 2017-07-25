@@ -3,8 +3,9 @@ import { LoginState } from '../classes/login-state';
 import { LoginingResolverService } from '../services/logining-resolver.service';
 import { RegisterFormComponent } from './register-form/register-form.component';
 import { LoginFormComponent } from './login-form/login-form.component';
-import { AuthenticationService } from '../services/authentication.service';
+import { AuthenticationService, INTERNAL_SERVER_ERROR } from '../services/authentication.service';
 import { Observable } from 'rxjs/Rx';
+import { ErrorInfo } from '../classes/error-info';
 declare var jQuery: any;
 
 @Component({
@@ -57,7 +58,7 @@ export class HeaderComponent implements AfterViewInit {
   auth(): void {
       this.authService.authenticate(this.loginComp.loginForm.value).subscribe(
           empty => {
-              this.errors['login'] = empty;
+              this.errors['login'] = '';
           },
           error => {
               this.handleError('login', error);
@@ -68,13 +69,24 @@ export class HeaderComponent implements AfterViewInit {
   reg(): void {
       this.authService.register(this.registerComp.registerForm.value).subscribe(
           empty => {
-              this.errors['register'] = empty;
+              this.errors['register'] = '';
           },
           error => {
               this.handleError('register', error);
           }
       );
 
+  }
+
+  reset(): void {
+      this.authService.resetPassword(this.loginComp.email.value).subscribe(
+          empty => {
+              this.errors['login'] = 'Письмо с инструкцией отправлено на указанный Email';
+          },
+          error => {
+              this.handleError('login', error);
+          }
+      )
   }
 
   logout(): void {
@@ -118,12 +130,16 @@ export class HeaderComponent implements AfterViewInit {
     }
   }
 
-  private handleError(formName: string, error: any): void {
+  private handleError(formName: string, error: ErrorInfo): void {
       if (error.cause === 'Unknown'){
           this.errors[formName] = 'Нет соединения с сервером';
           console.log(error);
       } else if (error.status === 500) {
-          this.errors[formName] = 'Внутренняя ошибка сервера';
+          this.errors[formName] = INTERNAL_SERVER_ERROR;
+          console.log(error);
+      } else if (error.status === 401) {
+          this.errors[formName] = error.details.join('. ');
+          //show reset button
           console.log(error);
       } else {
           console.log(error);

@@ -9,4 +9,8 @@ public class NotFoundException extends ApplicationException {
     public NotFoundException(String arg) {
         super(EXCEPTION_COMMON_NOT_FOUND, HttpStatus.UNPROCESSABLE_ENTITY, arg);
     }
+
+    public NotFoundException(String code, HttpStatus httpStatus, String arg) {
+        super(code, httpStatus, arg);
+    }
 }

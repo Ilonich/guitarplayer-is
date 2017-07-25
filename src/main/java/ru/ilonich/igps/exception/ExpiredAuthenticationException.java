@@ -1,6 +1,6 @@
 package ru.ilonich.igps.exception;
 
-public class ExpiredAuthenticationException extends Exception{
+public class ExpiredAuthenticationException extends Exception {
     private String issuer;
 
     public ExpiredAuthenticationException(String iss) {

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.ilonich.igps.comtroller.advice.ExceptionInfoHandler;
 import ru.ilonich.igps.exception.ApplicationException;
+import ru.ilonich.igps.exception.NotFoundException;
 import ru.ilonich.igps.model.AuthenticatedUser;
 import ru.ilonich.igps.model.User;
 import ru.ilonich.igps.service.AuthenticationService;
@@ -32,6 +33,9 @@ import java.net.URI;
 public class AuthenticationController {
     protected final Logger log = LoggerFactory.getLogger(getClass());
     private static final String BAD_CREDENTIALS = "exception.badCredentials";
+    private static final String AUTH_BLOCKED = "exception.blocked.auth";
+    private static final String RESET_BLOCKED = "exception.blocked.reset";
+    private static final String NOT_FOUND_EMAIL = "exception.notFound.acc";
 
     @Autowired
     private LoginAttemptService loginAttemptService;
@@ -48,7 +52,7 @@ public class AuthenticationController {
     @PostMapping(value = "/authenticate")
     public AuthTO authenticate(@Valid @RequestBody LoginTO loginTO, HttpServletResponse response, HttpServletRequest request) throws Exception {
         if (loginAttemptService.isBlocked(request.getRemoteAddr())){
-            throw new ApplicationException("exception.blocked", HttpStatus.LOCKED);
+            throw new ApplicationException(AUTH_BLOCKED, HttpStatus.LOCKED);
         }
         AuthTO result = authenticationService.authenticate(loginTO, response);
         loginAttemptService.loginSucceeded(request.getRemoteAddr());
@@ -58,7 +62,7 @@ public class AuthenticationController {
     @PostMapping(value = "/reset")
     public ResponseEntity initiateReset(@RequestBody String email, HttpServletRequest request) throws Exception {
         if (resetAttemptService.isBlocked(request.getRemoteAddr())){
-            return new ResponseEntity(HttpStatus.LOCKED);
+            throw new ApplicationException(RESET_BLOCKED, HttpStatus.LOCKED);
         }
         log.info("{} forgot password, trying to reset", email);
         if (authenticationService.initiateReset(email, getAppConfirmResetUrl(request))) {
@@ -66,7 +70,7 @@ public class AuthenticationController {
             return new ResponseEntity(HttpStatus.ACCEPTED);
         } else {
             resetAttemptService.attempt(request.getRemoteAddr());
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+            throw new NotFoundException(NOT_FOUND_EMAIL, HttpStatus.NOT_FOUND, email);
         }
     }
 
