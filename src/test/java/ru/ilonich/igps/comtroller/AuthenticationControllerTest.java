@@ -16,6 +16,7 @@ import ru.ilonich.igps.UserTestData;
 import ru.ilonich.igps.exception.ExpiredAuthenticationException;
 import ru.ilonich.igps.service.LoginAttemptService;
 import ru.ilonich.igps.service.LoginSecretKeysPairStoreService;
+import ru.ilonich.igps.service.ResetAttemptService;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
 import ru.ilonich.igps.to.RegisterTO;
@@ -44,9 +45,13 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     @Autowired
     private LoginAttemptService loginAttemptService;
 
+    @Autowired
+    private ResetAttemptService resetAttemptService;
+
     @After
     public void clearLoginAttempt(){
         loginAttemptService.clearCache();
+        resetAttemptService.clearCache();
     }
 
     @Test

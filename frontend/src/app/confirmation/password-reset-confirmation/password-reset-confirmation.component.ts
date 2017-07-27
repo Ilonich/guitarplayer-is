@@ -24,10 +24,8 @@ export class PasswordResetConfirmationComponent implements OnInit {
     );
     const token = this.route.snapshot.paramMap.get('token');
     this.confService.confirmReset(token)
-      .subscribe(
-        (success: boolean) => {
-          this.success = success;
-        });
+      .subscribe(success => this.success = success,
+              error => this.success = false);
   }
 
   gotoMain() {

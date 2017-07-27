@@ -5,6 +5,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.ui.freemarker.FreeMarkerConfigurationFactoryBean;
 
 import java.util.Properties;
 
@@ -13,7 +14,7 @@ import java.util.Properties;
 public class MailConfig {
 
     @Bean
-    public JavaMailSender javaMailService() {
+    public JavaMailSender javaMailSender() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setPort(465);
         javaMailSender.setHost("smtp.yandex.ru");
@@ -29,5 +30,11 @@ public class MailConfig {
         return javaMailSender;
     }
 
+    @Bean
+    public FreeMarkerConfigurationFactoryBean freeMarkerConfigurationFactory() {
+        FreeMarkerConfigurationFactoryBean fmConfigFactoryBean = new FreeMarkerConfigurationFactoryBean();
+        fmConfigFactoryBean.setTemplateLoaderPath("classpath:/email-templates/");
+        return fmConfigFactoryBean;
+    }
 
 }

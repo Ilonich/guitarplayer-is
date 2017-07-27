@@ -40,8 +40,8 @@ export class AuthenticationService {
           .map(response => {
               if (response.status !== 200) {
                   console.error("Response status was '"+ response.status + "', expected '200'");
-                  throw new Error(INTERNAL_SERVER_ERROR);
               }
+              this.http.switchState();
           })
           .catch(err => {
               this.http.switchState();

@@ -71,6 +71,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean confirmPasswordReset(String token) {
+        Assert.notNull(token);
         String newPass = PasswordGeneratorUtil.generate();
         User user = userRepository.confirmReset(token, newPass);
         if (user != null){

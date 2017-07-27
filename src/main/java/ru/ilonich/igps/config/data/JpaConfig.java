@@ -8,10 +8,12 @@ import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
+import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.datasource.init.DatabasePopulator;
@@ -24,6 +26,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
 import ru.ilonich.igps.utils.JpaUtil;
+import ru.ilonich.igps.utils.MessageUtil;
 
 import javax.sql.DataSource;
 import java.util.Properties;
@@ -144,7 +147,20 @@ public class JpaConfig implements TransactionManagementConfigurer {
     }
 
     @Bean
+    public MessageSource messageSource() {
+        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
+        messageSource.setBasename("i18n/backend-messages");
+        messageSource.setDefaultEncoding("UTF-8");
+        return messageSource;
+    }
+
+    @Bean
     public JpaUtil jpaUtil(){
         return new JpaUtil();
+    }
+
+    @Bean
+    public MessageUtil messageUtil(){
+        return new MessageUtil(messageSource());
     }
 }

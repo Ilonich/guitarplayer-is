@@ -27,6 +27,7 @@ export class HeaderComponent implements AfterViewInit {
   private formsDetector: Observable<any>;
 
   state: LoginState;
+  isResetVisible: boolean = false;
 
   errors = {
     'login': '',
@@ -81,6 +82,7 @@ export class HeaderComponent implements AfterViewInit {
   reset(): void {
       this.authService.resetPassword(this.loginComp.email.value).subscribe(
           empty => {
+              this.isResetVisible = false;
               this.errors['login'] = 'Письмо с инструкцией отправлено на указанный Email';
           },
           error => {
@@ -90,14 +92,7 @@ export class HeaderComponent implements AfterViewInit {
   }
 
   logout(): void {
-      this.authService.logout().subscribe(
-          message => {
-              console.log(message);
-          },
-          error => {
-              console.log(error);
-          }
-      );
+      this.authService.logout().subscribe();
   }
 
   closeModals(): void {
@@ -112,11 +107,15 @@ export class HeaderComponent implements AfterViewInit {
     this.errors.register = '';
   }
 
-  canLogin(): Boolean {
+  canLogin(): boolean {
     return false;
   }
 
-  canRegister(): Boolean {
+  canRegister(): boolean {
+    return false;
+  }
+
+  canReset(): boolean {
     return false;
   }
 
@@ -126,11 +125,13 @@ export class HeaderComponent implements AfterViewInit {
       this.registerComp = this.someRegisterForms.first;
       setTimeout(() => this.canLogin = () => this.loginComp.loginForm.valid, 0);
       setTimeout(() => this.canRegister = () => this.registerComp.registerForm.valid, 0);
+      setTimeout(() => this.canReset = () => this.loginComp.email.valid, 0);
       this.cdref.detectChanges(); // ExpressionChangedAfterItHasBeenCheckedError
     }
   }
 
   private handleError(formName: string, error: ErrorInfo): void {
+      this.isResetVisible = false;
       if (error.cause === 'Unknown'){
           this.errors[formName] = 'Нет соединения с сервером';
           console.log(error);
@@ -139,7 +140,7 @@ export class HeaderComponent implements AfterViewInit {
           console.log(error);
       } else if (error.status === 401) {
           this.errors[formName] = error.details.join('. ');
-          //show reset button
+          this.isResetVisible = true;
           console.log(error);
       } else {
           console.log(error);

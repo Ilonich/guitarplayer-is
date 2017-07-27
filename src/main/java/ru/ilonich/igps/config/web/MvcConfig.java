@@ -94,24 +94,11 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
     }
 
     @Bean
-    public MessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("i18n/backend-messages");
-        messageSource.setDefaultEncoding("UTF-8");
-        return messageSource;
-    }
-
-    @Bean
     public LocaleResolver localeResolver(){
         CookieLocaleResolver resolver = new CookieLocaleResolver();
         resolver.setDefaultLocale(MessageUtil.RU_LOCALE);
         resolver.setCookieName("locale");
         resolver.setCookieMaxAge(-1);
         return resolver;
-    }
-
-    @Bean
-    public MessageUtil messageUtil(){
-        return new MessageUtil(messageSource());
     }
 }

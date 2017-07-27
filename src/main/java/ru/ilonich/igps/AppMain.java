@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.autoconfigure.dao.PersistenceExceptionTranslationAutoConfiguration;
 import org.springframework.boot.autoconfigure.data.web.SpringDataWebAutoConfiguration;
+import org.springframework.boot.autoconfigure.freemarker.FreeMarkerAutoConfiguration;
 import org.springframework.boot.autoconfigure.info.ProjectInfoAutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -42,7 +43,7 @@ import java.util.stream.Stream;
         WebSocketAutoConfiguration.class, ConfigurationPropertiesAutoConfiguration.class,
         ProjectInfoAutoConfiguration.class, HibernateJpaAutoConfiguration.class, JtaAutoConfiguration.class,
         SpringDataWebAutoConfiguration.class, ServerPropertiesAutoConfiguration.class,
-        ValidationAutoConfiguration.class
+        ValidationAutoConfiguration.class, FreeMarkerAutoConfiguration.class
 })
 @Import({WebConfig.class})
 public class AppMain extends SpringBootServletInitializer {

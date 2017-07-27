@@ -18,7 +18,6 @@ import { HEADER_COMPONENTS } from './header/header';
 import { LeftsidebarComponent } from './leftsidebar/leftsidebar.component';
 import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
 import { UserProfileComponent } from './users/user-profile/user-profile.component';
-import { UsersHomeComponent } from './users/users-home/users-home.component';
 import { UserPageComponent } from './users/user-page/user-page.component';
 import { UsersListComponent } from './users/users-list/users-list.component';
 import { EmailConfirmationComponent } from './confirmation/email-confirmation/email-confirmation.component';
@@ -49,7 +48,6 @@ export let tokenHttpInterceptor = {
     UserPageComponent,
     UsersListComponent,
     PasswordResetConfirmationComponent,
-    UsersHomeComponent,
   ],
   imports: [
     BrowserModule,

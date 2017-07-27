@@ -87,7 +87,10 @@ export class TokenHttpInterceptor extends Http {
 
   private canVerify(url: string): boolean {
     console.log(url);
-    console.log(url.includes('/api'));
-    return url.includes('/api') && !url.includes('/api/authenticate');
+    return url.includes('/api') &&
+        !(url.includes('/api/authenticate') ||
+            url.includes('/api/reset') ||
+            url.includes('/api/confirm')
+        );
   }
 }

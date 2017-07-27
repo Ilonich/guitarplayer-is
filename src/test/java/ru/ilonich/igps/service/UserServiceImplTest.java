@@ -69,6 +69,13 @@ public class UserServiceImplTest {
         assertTrue(confirmed.isEnabled());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void confirmRegistrationFail() throws Exception {
+        assertFalse(userService.confirmRegistration(""));
+        userService.confirmRegistration(null);
+    }
+
+
     @Test(expected = UnsupportedOperationException.class)
     public void fieldValueExists() throws Exception {
         assertTrue(userService.fieldValueExists("Модератор", "username"));
@@ -92,5 +99,11 @@ public class UserServiceImplTest {
         String newPass = userService.getById(UserTestData.TYPICAL_USER.getId()).getPassword();
         assertTrue(PasswordUtil.isMatch("likeme", oldPass));
         assertFalse(PasswordUtil.isMatch("likeme", newPass));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void confirmPasswordResetFail() throws Exception {
+        assertFalse(userService.confirmPasswordReset(""));
+        userService.confirmPasswordReset(null);
     }
 }

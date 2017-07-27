@@ -10,7 +10,7 @@ const SOME_LOGIN: LoginState = new LoginState(true, 'Тестовый юзер')
 export class LoginingResolverService {
     private storage: Storage;
     private currentToken: Authentication;
-    subject: BehaviorSubject<LoginState>;
+    private subject: BehaviorSubject<LoginState>;
     stateFeed: ConnectableObservable<LoginState>;
 
     constructor() {

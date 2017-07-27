@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -36,6 +37,7 @@ public class AuthenticationController {
     private static final String AUTH_BLOCKED = "exception.blocked.auth";
     private static final String RESET_BLOCKED = "exception.blocked.reset";
     private static final String NOT_FOUND_EMAIL = "exception.notFound.acc";
+    private static final String BAD_REQUEST = "exception.badRequest";
 
     @Autowired
     private LoginAttemptService loginAttemptService;
@@ -94,6 +96,11 @@ public class AuthenticationController {
     public ResponseEntity<ErrorInfo> badCredentials(HttpServletRequest req, BadCredentialsException e) {
         loginAttemptService.loginFailed(req.getRemoteAddr());
         return exceptionInfoHandler.getErrorInfoResponseEntity(req, e, BAD_CREDENTIALS, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ErrorInfo> badCredentials(HttpServletRequest req, HttpMessageNotReadableException e) {
+        return exceptionInfoHandler.getErrorInfoResponseEntity(req, e, BAD_REQUEST, HttpStatus.BAD_REQUEST);
     }
 
     private String getAppConfirmEmailUrl(HttpServletRequest request) {

@@ -6,7 +6,6 @@ import { PageNotFoundComponent } from './page-not-found/page-not-found.component
 import { UserProfileComponent } from './users/user-profile/user-profile.component';
 import { EmailConfirmationComponent } from './confirmation/email-confirmation/email-confirmation.component';
 import { PasswordResetConfirmationComponent } from './confirmation/password-reset-confirmation/password-reset-confirmation.component';
-import { UsersHomeComponent } from './users/users-home/users-home.component';
 import { UserPageComponent } from './users/user-page/user-page.component';
 import { UsersListComponent } from './users/users-list/users-list.component';
 
@@ -29,7 +28,6 @@ const appRoutes: Routes = [
   },
   {
     path: 'users',
-    component: UsersHomeComponent,
     children: [
       {
         path: '',

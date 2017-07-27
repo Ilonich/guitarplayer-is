@@ -12,12 +12,15 @@ export class ConfirmationService {
     console.log('ConfirmationService CREATED');
   }
 
-
   confirmEmail(token: string|any): Observable<boolean> {
-    return Observable.of(true);
+      return this.http.get('/api/confirm/email/'.concat(token)).map(
+          response => response.status === 202,
+      );
   }
 
   confirmReset(token: string|any): Observable<boolean> {
-    return Observable.of(true);
+      return this.http.get('/api/confirm/email/'.concat(token)).map(
+          response => response.status === 202,
+      );
   }
 }
