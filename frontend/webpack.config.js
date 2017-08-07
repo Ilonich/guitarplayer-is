@@ -20,7 +20,13 @@ module.exports = {
         filename: '[name].js'
     },
     resolve: {
-        extensions: ['.ts', '.js', '.css', '.html']
+        extensions: ['.ts', '.js', '.css', '.html'],
+        alias: {
+            'stompjs': __dirname + '/node_modules/stompjs/lib/stomp.js'
+        }
+    },
+    node: {
+        net: 'empty'
     },
     module: {
         rules: [

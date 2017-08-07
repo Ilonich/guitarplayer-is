@@ -11,14 +11,14 @@ export class LoginingResolverService {
     private storage: Storage;
     private currentToken: Authentication;
     private subject: BehaviorSubject<LoginState>;
-    stateFeed: ConnectableObservable<LoginState>;
+    stateFeed: Observable<LoginState>;
 
     constructor() {
         this.storage = window.localStorage;
         const auth = this.getAuthentication();
         this.currentToken = auth;
         this.subject = new BehaviorSubject<LoginState>(auth !== null ? new LoginState(true, auth.username) : NO_LOGIN); // SOME_LOGIN for different view
-        this.stateFeed = this.subject.publish();
+        this.stateFeed = this.subject.filter(any => true);
         console.log('LoginingResolverService CREATED');
     }
 

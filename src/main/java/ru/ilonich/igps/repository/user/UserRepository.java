@@ -9,6 +9,7 @@ public interface UserRepository {
     User getById(Integer id);
 
     User findByEmail(String email);
+
     User save(User user);
 
     boolean existsByEmail(String email);

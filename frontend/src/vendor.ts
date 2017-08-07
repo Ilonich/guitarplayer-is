@@ -15,3 +15,5 @@ import 'font-awesome/css/font-awesome.min.css';
 
 import 'rxjs';
 import 'crypto-js';
+import 'sockjs-client';
+import '@stomp/ng2-stompjs';

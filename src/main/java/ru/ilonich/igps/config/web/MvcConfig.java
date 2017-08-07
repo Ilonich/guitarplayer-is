@@ -3,7 +3,6 @@ package ru.ilonich.igps.config.web;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
@@ -16,7 +15,6 @@ import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.*;
 import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import ru.ilonich.igps.config.data.misc.JsonMapper;
-import ru.ilonich.igps.config.security.SSConfig;
 import ru.ilonich.igps.utils.MessageUtil;
 
 import java.nio.charset.Charset;
@@ -26,7 +24,6 @@ import java.util.List;
 @Configuration
 @EnableWebMvc
 @ComponentScan("ru.ilonich.igps.comtroller")
-@Import(SSConfig.class)
 public class MvcConfig extends WebMvcConfigurerAdapter {
 
     @Override
@@ -85,7 +82,7 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(2);
         executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(25);
+        executor.setQueueCapacity(Integer.MAX_VALUE / 3);
         executor.setKeepAliveSeconds(20);
         executor.setAllowCoreThreadTimeOut(true);
         return executor;

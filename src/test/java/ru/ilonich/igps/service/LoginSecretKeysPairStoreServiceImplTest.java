@@ -1,11 +1,12 @@
 package ru.ilonich.igps.service;
 
-import com.google.common.cache.CacheLoader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.config.data.JpaConfig;
 import ru.ilonich.igps.exception.ExpiredAuthenticationException;
 import ru.ilonich.igps.model.tokens.LoginSecretKeysPair;
@@ -18,6 +19,8 @@ import static org.junit.Assert.*;
 
 @SpringBootTest(classes = JpaConfig.class)
 @RunWith(SpringRunner.class)
+@TestPropertySource(locations="classpath:application-test.properties")
+@Transactional
 public class LoginSecretKeysPairStoreServiceImplTest {
     private static final String TEST_PAIR_ID = "test@asd.ro";
     private static final LoginSecretKeysPair TEST_PAIR = new LoginSecretKeysPair(TEST_PAIR_ID, "public", "private", OffsetDateTime.now());

@@ -1,10 +1,8 @@
 package ru.ilonich.igps.model;
 
-
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.*;
 import org.hibernate.validator.constraints.*;
-import org.springframework.data.domain.Persistable;
 import org.springframework.util.CollectionUtils;
 import ru.ilonich.igps.model.enumerations.Authority;
 import ru.ilonich.igps.model.enumerations.Location;

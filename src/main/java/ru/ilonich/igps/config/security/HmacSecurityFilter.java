@@ -87,7 +87,7 @@ public class HmacSecurityFilter extends GenericFilterBean {
                 }
             } catch (ExpiredAuthenticationException | HmacException | ParseException e){
                 if (checkService.isAuthenticationRequired(request)) {
-                    setSecurityFilterExceptionResponse(response, e, request.getRequestURL());
+                    setSecurityFilterExceptionResponse(response, e, request.getRequestURL(), LOG);
                 } else {
                     filterChain.doFilter(request, response);
                 }
@@ -104,8 +104,8 @@ public class HmacSecurityFilter extends GenericFilterBean {
         }
     }
 
-    static void setSecurityFilterExceptionResponse(HttpServletResponse response, Exception e, CharSequence url) throws IOException {
-        LOG.debug("Error while generating hmac token", e);
+    static void setSecurityFilterExceptionResponse(HttpServletResponse response, Exception e, CharSequence url, Logger log) throws IOException {
+        log.debug("Error while generating hmac token", e);
         if (e instanceof ExpiredAuthenticationException) {
             response.setStatus(401);
             response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(url, "ExpiredAuthenticationException", e.getMessage())));

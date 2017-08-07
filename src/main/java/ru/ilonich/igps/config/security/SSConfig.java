@@ -3,7 +3,6 @@ package ru.ilonich.igps.config.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
@@ -13,7 +12,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import ru.ilonich.igps.config.data.JpaConfig;
+import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 import ru.ilonich.igps.service.AuthenticationService;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
 import ru.ilonich.igps.service.UserService;
@@ -22,7 +21,6 @@ import ru.ilonich.igps.utils.PasswordUtil;
 
 @Configuration
 @EnableWebSecurity
-@Import(JpaConfig.class)
 public class SSConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
@@ -66,12 +64,16 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
+                .headers().addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                .and()
                 .authorizeRequests()
                 .antMatchers("/api/authenticate").anonymous()
                 .antMatchers("/api/register").anonymous()
                 .antMatchers("/api/reset").anonymous()
                 .antMatchers("/api/validate").anonymous()
                 .antMatchers("/api/confirm/**").anonymous()
+                .antMatchers("/api/websocket").anonymous()
+                .antMatchers("/api/websocket/**").anonymous()
                 .antMatchers("/").anonymous()
                 .antMatchers("/api/**").authenticated()
                 .and()

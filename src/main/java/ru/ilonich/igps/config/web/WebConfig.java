@@ -1,20 +1,21 @@
 package ru.ilonich.igps.config.web;
 
 import org.apache.catalina.connector.Connector;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.coyote.http11.Http11Nio2Protocol;
-import org.apache.coyote.http2.Http2Protocol;
+import org.apache.tomcat.websocket.server.WsSci;
 import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
-import org.springframework.boot.context.embedded.ConfigurableEmbeddedServletContainer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerCustomizer;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.tomcat.TomcatConnectorCustomizer;
+import org.springframework.boot.context.embedded.tomcat.TomcatContextCustomizer;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.web.servlet.ErrorPage;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.CharacterEncodingFilter;
@@ -22,9 +23,9 @@ import org.springframework.web.servlet.DispatcherServlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Configuration
-@Import(MvcConfig.class)
 public class WebConfig {
     private static final String KEYSTORE = "ilonich_igps_ru.jks";
 
@@ -44,16 +45,27 @@ public class WebConfig {
             protocol.setMaxHttpHeaderSize(32768);
             protocol.setCompression("on");
             protocol.setCompressibleMimeType("application/json,application/xml,text/html,text/xml,text/plain,text/css,text/javascript,application/javascript");
+            InputStream inputStreamKeystore = null;
+            //InputStream inputStreamTruststore = null;
             try {
-                File keystore = new ClassPathResource(KEYSTORE).getFile();
-                protocol.setKeystoreFile(keystore.getAbsolutePath());
+                ClassPathResource classPathKeystore = new ClassPathResource(KEYSTORE);
+                //ClassPathResource classPathTruststore = new ClassPathResource(TRUSTSTORE);
+                inputStreamKeystore = classPathKeystore.getInputStream();
+                File tempFile = File.createTempFile("keystore", ".jks");
+                FileUtils.copyInputStreamToFile(inputStreamKeystore, tempFile);
+                protocol.setKeystoreFile(tempFile.getAbsolutePath());
                 protocol.setKeystorePass("test123");
                 protocol.setKeyAlias("server");
-                //File truststore = new ClassPathResource("").getFile();
-                //protocol.setTruststoreFile(truststore.getAbsolutePath());
+                //inputStreamTruststore = classPathTruststore.getInputStream();
+                //File tempFile2 = File.createTempFile("truststore", ".jks");
+                //FileUtils.copyInputStreamToFile(inputStreamTruststore, tempFile2);
+                //protocol.setTruststoreFile(tempFile2.getAbsolutePath());
                 //protocol.setTruststorePass("");
             } catch (IOException e) {
-                throw new IllegalStateException("can't access keystore: [" + KEYSTORE + "] ", e);
+                throw new IllegalStateException("can't access file: [" + KEYSTORE + "] ", e);
+            } finally {
+                IOUtils.closeQuietly(inputStreamKeystore);
+                //IOUtils.closeQuietly(inputStreamTruststore);
             }
             connector.setPort(8443);
             connector.setScheme("https");
@@ -69,6 +81,7 @@ public class WebConfig {
             connector.setProperty("server", "IGPS-Server");
         });
         tomcatEmbeddedServletContainerFactory.addAdditionalTomcatConnectors(initiateHttpConnector());
+        tomcatEmbeddedServletContainerFactory.addContextCustomizers(tomcatContextCustomizer());
         return tomcatEmbeddedServletContainerFactory;
     }
 
@@ -79,6 +92,12 @@ public class WebConfig {
         connector.setSecure(false);
         connector.setRedirectPort(8443);
         return connector;
+    }
+
+    //prevent java.lang.IllegalArgumentException: No 'javax.websocket.server.ServerContainer' ServletContext attribute
+    @Bean
+    public TomcatContextCustomizer tomcatContextCustomizer() {
+        return context -> context.addServletContainerInitializer(new WsSci(), null);
     }
 
     @Bean

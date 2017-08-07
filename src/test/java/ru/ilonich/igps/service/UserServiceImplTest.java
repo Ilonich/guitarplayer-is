@@ -5,7 +5,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.UserTestData;
 import ru.ilonich.igps.config.data.JpaConfig;
 import ru.ilonich.igps.exception.NotFoundException;
@@ -20,6 +22,8 @@ import static ru.ilonich.igps.UserTestData.USER_MODEL_MATCHER;
 
 @SpringBootTest(classes = JpaConfig.class)
 @RunWith(SpringRunner.class)
+@TestPropertySource(locations="classpath:application-test.properties")
+@Transactional
 public class UserServiceImplTest {
 
     @Autowired
@@ -55,6 +59,7 @@ public class UserServiceImplTest {
 
     @Test
     public void register() throws Exception {
+        UserTestData.SOME_NEW.setId(null); // детач после других тестов чот не пашет
         User user = userService.register(UserTestData.SOME_NEW, "url");
         assertNotNull(user);
         assertEquals(UserTestData.SOME_NEW.getId(), user.getId());

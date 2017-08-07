@@ -5,13 +5,11 @@ import freemarker.template.TemplateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import ru.ilonich.igps.config.MailConfig;
 import ru.ilonich.igps.events.OnPasswordResetEvent;
 import ru.ilonich.igps.events.OnPasswordResetSuccesEvent;
 import ru.ilonich.igps.events.OnRegistrationSuccessEvent;
@@ -26,13 +24,12 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-@ConditionalOnBean(MailConfig.class)
 @Service
 public class MailServiceImpl implements MailService {
 
     private Logger LOG = LoggerFactory.getLogger(getClass());
-
-    private static final String SYSTEM_MAIL = "no-reply@igps.ru";
+    //TODO
+    private static final String SYSTEM_MAIL = "ilonich.igps@yandex.ru";
     private static final String ACCOUNT_CONFIRMATION = "mail.account.confirmation";
     private static final String RESET_CONFIRMATION = "mail.reset.confirmation";
     private static final String NEW_PASSWORD = "mail.new.password";

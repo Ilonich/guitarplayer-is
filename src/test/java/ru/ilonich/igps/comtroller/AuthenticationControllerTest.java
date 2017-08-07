@@ -9,14 +9,13 @@ import org.springframework.test.web.servlet.MvcResult;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMethod;
 import ru.ilonich.igps.UserTestData;
 import ru.ilonich.igps.exception.ExpiredAuthenticationException;
-import ru.ilonich.igps.service.LoginAttemptService;
+import ru.ilonich.igps.service.cacheonly.LoginAttemptService;
 import ru.ilonich.igps.service.LoginSecretKeysPairStoreService;
-import ru.ilonich.igps.service.ResetAttemptService;
+import ru.ilonich.igps.service.cacheonly.ResetAttemptService;
 import ru.ilonich.igps.to.AuthTO;
 import ru.ilonich.igps.to.LoginTO;
 import ru.ilonich.igps.to.RegisterTO;
@@ -37,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 import static ru.ilonich.igps.utils.JsonUtil.*;
 
+@Transactional
 public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Autowired
@@ -92,7 +92,6 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @Transactional(propagation = Propagation.NEVER)
     public void registerSuccess() throws Exception {
         RegisterTO registerTO = new RegisterTO("someone", "test@test.com", "12345", "12345");
         MvcResult result = mockMVC.perform(put("/api/register").secure(true)

@@ -149,7 +149,7 @@ public class HmacSigner {
      * @return true if the JWT is valid, false otherwise
      * @throws HmacException
      */
-    public static Boolean verifyJWT(final String jwt, final String secret) throws HmacException {
+    public static boolean verifyJWT(final String jwt, final String secret) throws HmacException {
         try {
             SignedJWT signedJWT = SignedJWT.parse(jwt);
             JWSVerifier jwsVerifier = new MACVerifier(secret);

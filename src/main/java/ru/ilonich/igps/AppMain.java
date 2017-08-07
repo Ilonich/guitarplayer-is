@@ -1,6 +1,5 @@
 package ru.ilonich.igps;
 
-import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
@@ -21,14 +20,19 @@ import org.springframework.boot.autoconfigure.transaction.jta.JtaAutoConfigurati
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
 import org.springframework.boot.autoconfigure.web.*;
 import org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration;
-import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.autoconfigure.websocket.WebSocketMessagingAutoConfiguration;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import ru.ilonich.igps.config.AsyncConfig;
+import ru.ilonich.igps.config.MailConfig;
+import ru.ilonich.igps.config.TaskConfig;
+import ru.ilonich.igps.config.data.JpaConfig;
+import ru.ilonich.igps.config.security.SSConfig;
+import ru.ilonich.igps.config.socket.WebSocketConfig;
+import ru.ilonich.igps.config.web.MvcConfig;
 import ru.ilonich.igps.config.web.WebConfig;
-
-import java.util.stream.Stream;
 
 @Configuration
 @EnableAutoConfiguration(exclude = {
@@ -43,23 +47,15 @@ import java.util.stream.Stream;
         WebSocketAutoConfiguration.class, ConfigurationPropertiesAutoConfiguration.class,
         ProjectInfoAutoConfiguration.class, HibernateJpaAutoConfiguration.class, JtaAutoConfiguration.class,
         SpringDataWebAutoConfiguration.class, ServerPropertiesAutoConfiguration.class,
-        ValidationAutoConfiguration.class, FreeMarkerAutoConfiguration.class
+        ValidationAutoConfiguration.class, FreeMarkerAutoConfiguration.class,
+        WebSocketMessagingAutoConfiguration.class
 })
-@Import({WebConfig.class})
+@Import({WebConfig.class, MvcConfig.class, JpaConfig.class,
+        SSConfig.class, MailConfig.class, WebSocketConfig.class,
+        AsyncConfig.class, TaskConfig.class,})
 public class AppMain extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         ApplicationContext ac = SpringApplication.run(AppMain.class, args);
-        //ApplicationContext ac = configureApplication(new SpringApplicationBuilder()).run(args);
-        //Stream.of(ac.getBeanDefinitionNames()).forEach(System.out::println);
-    }
-
-    @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
-        return configureApplication(builder);
-    }
-
-    private static SpringApplicationBuilder configureApplication(SpringApplicationBuilder builder) {
-        return builder.sources(AppMain.class).bannerMode(Banner.Mode.OFF);
     }
 }

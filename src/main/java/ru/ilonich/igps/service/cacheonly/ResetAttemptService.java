@@ -1,4 +1,4 @@
-package ru.ilonich.igps.service;
+package ru.ilonich.igps.service.cacheonly;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;

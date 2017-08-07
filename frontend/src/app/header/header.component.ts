@@ -40,7 +40,6 @@ export class HeaderComponent implements AfterViewInit {
       this.closeModals();
       this.state = loginState;
     });
-    this.logger.stateFeed.connect();
   }
 
   ngAfterViewInit() {

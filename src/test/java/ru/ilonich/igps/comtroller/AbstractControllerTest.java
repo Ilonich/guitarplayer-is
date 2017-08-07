@@ -38,9 +38,9 @@ import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 import static ru.ilonich.igps.utils.JsonUtil.writeValue;
 
 @WebAppConfiguration
-@SpringBootTest(classes = {MvcConfig.class})
+@SpringBootTest(classes = {MvcConfig.class, JpaConfig.class, SSConfig.class})
 @RunWith(SpringRunner.class)
-@TestPropertySource(locations="classpath:application.properties")
+@TestPropertySource(locations="classpath:application-test.properties")
 public abstract class AbstractControllerTest {
     protected MockMvc mockMVC;
 

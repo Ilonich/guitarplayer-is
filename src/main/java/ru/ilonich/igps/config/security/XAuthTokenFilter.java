@@ -1,5 +1,7 @@
 package ru.ilonich.igps.config.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.filter.GenericFilterBean;
 import ru.ilonich.igps.exception.ExpiredAuthenticationException;
 import ru.ilonich.igps.exception.HmacException;
@@ -21,6 +23,7 @@ import static ru.ilonich.igps.config.security.HmacSecurityFilter.*;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 
 public class XAuthTokenFilter extends GenericFilterBean {
+    private static final Logger LOG = LoggerFactory.getLogger(XAuthTokenFilter.class);
 
     private AuthenticationService authenticationService;
     private SecuredRequestCheckService checkService;
@@ -54,7 +57,7 @@ public class XAuthTokenFilter extends GenericFilterBean {
                 filterChain.doFilter(request, response);
             } catch (ExpiredAuthenticationException | HmacException | ParseException e) {
                 if (checkService.isAuthenticationRequired(request)) {
-                    setSecurityFilterExceptionResponse(response, e, request.getRequestURL());
+                    setSecurityFilterExceptionResponse(response, e, request.getRequestURL(), LOG);
                 } else {
                     this.authenticationService.authenticateAnonymous();
                     filterChain.doFilter(request, response);

@@ -9,9 +9,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.ehcache.EhCacheCacheManager;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.MessageSource;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.core.io.ClassPathResource;
@@ -25,6 +23,7 @@ import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.TransactionManagementConfigurer;
+import ru.ilonich.igps.service.MailService;
 import ru.ilonich.igps.utils.JpaUtil;
 import ru.ilonich.igps.utils.MessageUtil;
 
@@ -35,7 +34,8 @@ import java.util.Properties;
 @EnableTransactionManagement
 @EnableJpaRepositories(basePackages = {"ru.ilonich.igps.repository.user", "ru.ilonich.igps.repository.tokens"})
 @EnableCaching
-@ComponentScan({"ru.ilonich.igps.repository.user", "ru.ilonich.igps.service"})
+@ComponentScan(value = {"ru.ilonich.igps.repository.user", "ru.ilonich.igps.service"},
+        excludeFilters={@ComponentScan.Filter(type= FilterType.ASSIGNABLE_TYPE, value=MailService.class)})
 public class JpaConfig implements TransactionManagementConfigurer {
 
     @Value("${dataSource.url}")

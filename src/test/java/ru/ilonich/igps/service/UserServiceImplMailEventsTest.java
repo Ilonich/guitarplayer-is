@@ -13,7 +13,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.Transactional;
 import ru.ilonich.igps.UserTestData;
 import ru.ilonich.igps.config.MailConfig;
 import ru.ilonich.igps.config.data.JpaConfig;
@@ -37,7 +39,9 @@ import static org.junit.Assert.assertTrue;
 
 @SpringBootTest(classes = {JpaConfig.class, MailConfig.class})
 @RunWith(SpringRunner.class)
-public class UserServiceImplEventsTest {
+@TestPropertySource(locations="classpath:application-test.properties")
+@Transactional
+public class UserServiceImplMailEventsTest {
 
     @Autowired
     private UserService userService;

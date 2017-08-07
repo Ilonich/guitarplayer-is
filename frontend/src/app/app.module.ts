@@ -12,6 +12,7 @@ import { AuthenticationService } from './services/authentication.service';
 import { TokenHttpInterceptor } from './interceptor/token-http-interceptor';
 import { UsersService } from './services/users.service';
 import { ConfirmationService } from './services/confirmation.service';
+import { MyUglyStompService } from './services/my-ugly-stomp.service';
 
 import { AppComponent } from './app.component';
 import { HEADER_COMPONENTS } from './header/header';
@@ -35,6 +36,17 @@ export let tokenHttpInterceptor = {
   provide: TokenHttpInterceptor,
   useFactory: httpFactory,
   deps: [XHRBackend, RequestOptions, LoginingResolverService, DocumentRef]
+};
+
+export function stompOverSockJSFactory(
+    logining: LoginingResolverService,
+    tokenHttpInterceptor: TokenHttpInterceptor) {
+    return new MyUglyStompService(logining, tokenHttpInterceptor);
+}
+export let myUglyStompService = {
+    provide: MyUglyStompService,
+    useFactory: stompOverSockJSFactory,
+    deps: [LoginingResolverService, TokenHttpInterceptor]
 };
 
 @NgModule({
@@ -63,9 +75,11 @@ export let tokenHttpInterceptor = {
     Title,
     DocumentRef,
     tokenHttpInterceptor,
+    myUglyStompService,
     AuthenticationService,
     ConfirmationService,
-    UsersService
+    UsersService,
+    MyUglyStompService,
   ]
 })
 export class AppModule { }

@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import {slideInDownAnimation} from '../animations';
 import { Title } from '@angular/platform-browser';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
@@ -9,16 +9,18 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
   styleUrls: ['./page-not-found.component.css'],
   animations: [slideInDownAnimation]
 })
-export class PageNotFoundComponent implements OnInit {
+export class PageNotFoundComponent implements OnInit, OnDestroy {
 
-  constructor(private route: ActivatedRoute,
-              private router: Router,
-              private title: Title) { }
+    constructor(private route: ActivatedRoute,
+                    private router: Router,
+                    private title: Title) { }
 
-  ngOnInit() {
-    this.route.data.map(data => data.title).subscribe(
-      title => this.title.setTitle(title)
-    );
-  }
+    ngOnInit() {
+        this.route.data.map(data => data.title).subscribe(
+          title => this.title.setTitle(title)
+        );
+    }
 
+    ngOnDestroy(): void {
+    }
 }
