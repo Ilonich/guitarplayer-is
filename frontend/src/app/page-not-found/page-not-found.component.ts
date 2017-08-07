@@ -11,15 +11,15 @@ import { Router, ActivatedRoute, ParamMap } from '@angular/router';
 })
 export class PageNotFoundComponent implements OnInit, OnDestroy {
 
-    constructor(private route: ActivatedRoute,
-                    private router: Router,
-                    private title: Title) { }
+  constructor(private route: ActivatedRoute,
+              private router: Router,
+              private title: Title) { }
 
-    ngOnInit() {
-        this.route.data.map(data => data.title).subscribe(
-          title => this.title.setTitle(title)
-        );
-    }
+  ngOnInit() {
+    this.route.data.map(data => data.title).subscribe(
+      title => this.title.setTitle(title)
+    );
+  }
 
     ngOnDestroy(): void {
     }

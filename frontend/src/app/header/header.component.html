@@ -39,7 +39,7 @@
         </div>
         <div class="modal-footer">
             <button type="button" class="btn btn-warning" *ngIf="isResetVisible" (click)="reset()" [disabled]="!canReset()">Сброс пароля</button>
-            <button class="btn btn-primary" type="button" (click)="auth()" [disabled]="!canLogin()">Войти</button>
+            <button type="submit" class="btn btn-primary" (click)="auth()" [disabled]="!canLogin()">Войти</button>
             <button type="button" class="btn btn-default" (click)="closeModals()">Зыкрыть</button>
             <div class="pull-left alert alert-warning" role="alert" *ngIf="errors.login">{{errors.login}}</div>
         </div>

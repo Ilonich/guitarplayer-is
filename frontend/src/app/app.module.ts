@@ -23,6 +23,13 @@ import { UserPageComponent } from './users/user-page/user-page.component';
 import { UsersListComponent } from './users/users-list/users-list.component';
 import { EmailConfirmationComponent } from './confirmation/email-confirmation/email-confirmation.component';
 import { PasswordResetConfirmationComponent } from './confirmation/password-reset-confirmation/password-reset-confirmation.component';
+import { DialogsListComponent } from './dialogs/dialogs-list/dialogs-list.component';
+import { DialogComponent } from './dialogs/dialog/dialog.component';
+import { PostsPreviewComponent } from './posts/posts-preview/posts-preview.component';
+import { PostFullComponent } from './posts/post-full/post-full.component';
+import { ItemsListComponent } from './market/items-list/items-list.component';
+import { ItemComponent } from './market/item/item.component';
+import { MainPageComponent } from './main-page/main-page.component';
 
 
 export function httpFactory(
@@ -60,6 +67,13 @@ export let myUglyStompService = {
     UserPageComponent,
     UsersListComponent,
     PasswordResetConfirmationComponent,
+    DialogsListComponent,
+    DialogComponent,
+    PostsPreviewComponent,
+    PostFullComponent,
+    ItemsListComponent,
+    ItemComponent,
+    MainPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -78,8 +92,7 @@ export let myUglyStompService = {
     myUglyStompService,
     AuthenticationService,
     ConfirmationService,
-    UsersService,
-    MyUglyStompService,
+    UsersService
   ]
 })
 export class AppModule { }

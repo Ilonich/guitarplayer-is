@@ -8,13 +8,70 @@ import { EmailConfirmationComponent } from './confirmation/email-confirmation/em
 import { PasswordResetConfirmationComponent } from './confirmation/password-reset-confirmation/password-reset-confirmation.component';
 import { UserPageComponent } from './users/user-page/user-page.component';
 import { UsersListComponent } from './users/users-list/users-list.component';
+import { MainPageComponent } from './main-page/main-page.component';
+import { DialogsListComponent } from './dialogs/dialogs-list/dialogs-list.component';
+import { DialogComponent } from './dialogs/dialog/dialog.component';
+import { PostsPreviewComponent } from './posts/posts-preview/posts-preview.component';
+import { PostFullComponent } from './posts/post-full/post-full.component';
 
 const appRoutes: Routes = [
+  {
+    path: 'main',
+    component: MainPageComponent,
+    data: { title: 'Главная'},
+  },
+  {
+    path: 'dialogs',
+    component: DialogsListComponent,
+    data: { title: 'Диалоги'},
+    canActivate: [AuthGuardService],
+    canActivateChild: [AuthGuardService],
+    children: [
+      {
+        path: ':id',
+        component: DialogComponent,
+      }
+    ]
+  },
+  {
+    path: 'posts/:page',
+    component: PostsPreviewComponent,
+    data: { title: 'Публикации'}
+  },
+  {
+    path: 'post/:id',
+    component: PostFullComponent
+  },
+  {
+    path: 'posts',
+    redirectTo: '/posts/1'
+  },
   {
     path: 'profile',
     component: UserProfileComponent,
     data: { title: 'Мой профиль' },
     canActivate: [AuthGuardService],
+  },
+  {
+    path: 'users',
+    children: [
+      {
+        path: '',
+        component: UsersListComponent,
+      },
+      {
+        path: ':id',
+        component: UserPageComponent,
+        children: [
+          {
+            path: 'posts'
+          },
+          {
+            path: 'comments'
+          }
+        ]
+      }
+    ]
   },
   {
     path: 'confirm-email/:token',
@@ -27,22 +84,13 @@ const appRoutes: Routes = [
     data: { title: 'Подтверждение сброса пароля' }
   },
   {
-    path: 'users',
-    children: [
-      {
-        path: '',
-        component: UsersListComponent,
-      },
-      {
-        path: ':id',
-        component: UserPageComponent,
-      }
-    ]
-  },
-  {
     path: '404',
     component: PageNotFoundComponent,
     data: { title: '404 - Страница не найдена' }
+  },
+  {
+    path: '',
+    redirectTo: '/main'
   },
   {
     path: '**',
