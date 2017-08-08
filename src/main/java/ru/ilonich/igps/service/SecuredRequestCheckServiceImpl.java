@@ -28,8 +28,8 @@ public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckServic
                         req.contains("/api/reset") ||
                         req.contains("/api/confirm") ||
                         req.contains("/api/authenticate") ||
-                        req.contains("/api/register")) ||
-                        req.contains("/api/validate");
+                        req.contains("/api/register") ||
+                        req.contains("/api/validate"));
     }
 
     @Override

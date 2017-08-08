@@ -57,19 +57,11 @@ const appRoutes: Routes = [
     children: [
       {
         path: '',
-        component: UsersListComponent,
+        component: UsersListComponent
       },
       {
         path: ':id',
-        component: UserPageComponent,
-        children: [
-          {
-            path: 'posts'
-          },
-          {
-            path: 'comments'
-          }
-        ]
+        component: UserPageComponent
       }
     ]
   },
@@ -90,7 +82,8 @@ const appRoutes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/main'
+    redirectTo: '/main',
+    pathMatch: 'full'
   },
   {
     path: '**',
