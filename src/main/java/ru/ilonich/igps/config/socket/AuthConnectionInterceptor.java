@@ -45,15 +45,16 @@ public class AuthConnectionInterceptor extends ChannelInterceptorAdapter {
     }
 
     private void processAuthentication(StompHeaderAccessor incMessage) {
-        SocketPrincipal principal = sessionsService.getPrincipalCandidate(incMessage.getSessionId());
+        String sessionId = incMessage.getSessionId();
+        SocketPrincipal principal = sessionsService.getPrincipalCandidate(sessionId);
         if (principal == null) {
-            sendError(incMessage.getSessionId(), INVALID_TOKEN);
+            sendError(sessionId, INVALID_TOKEN);
         } else {
             if (!isPrincipalMatches(principal, incMessage.getLogin(), incMessage.getPasscode())) {
-                sendError(incMessage.getSessionId(), INVALID_LOGIN);
+                sendError(sessionId, INVALID_LOGIN);
             } else {
                 incMessage.setUser(principal);
-                LOG.debug("Session [{}] authenticated as {}", incMessage.getId(), principal.toString());
+                LOG.debug("Session [{}] authenticated as {}", sessionId, principal.toString());
                 sessionsService.addOnlineUserId(principal.getName());
             }
         }
