@@ -28,6 +28,7 @@ import static ru.ilonich.igps.config.security.HmacSecurityFilter.CLAIM_WITH_CURR
 import static ru.ilonich.igps.config.security.HmacSecurityFilter.JWT_TTL;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 
+//TODO переделать для входа/выхода с аккаунта с разных мест/устройств
 @Service("authenticationService")
 public class AuthenticationServiceImpl implements AuthenticationService {
 

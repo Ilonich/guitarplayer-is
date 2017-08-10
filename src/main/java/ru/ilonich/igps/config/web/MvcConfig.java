@@ -45,14 +45,13 @@ public class MvcConfig extends WebMvcConfigurerAdapter {
         registry.addResourceHandler("/*.js",
                 "/*.css",
                 "/*.html",
-                "/*.ico",
                 "/*.ttf",
                 "/*.woff",
                 "/*.woff2",
                 "/*.svg",
                 "/*.eot",
                 "/*.map").addResourceLocations("classpath:/static/");
-        registry.addResourceHandler("/assets/**").addResourceLocations("classpath:/static/assets/");
+        registry.addResourceHandler("/assets/**", "/*.ico").addResourceLocations("classpath:/static/assets/");
         //TODO переделать в webpack расположение и сделать нормальный хэндлер
     }
 

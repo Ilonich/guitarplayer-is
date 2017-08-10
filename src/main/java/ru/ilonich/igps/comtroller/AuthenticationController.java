@@ -104,10 +104,10 @@ public class AuthenticationController {
     }
 
     private String getAppConfirmEmailUrl(HttpServletRequest request) {
-        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-email";
+        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-email/";
     }
 
     private String getAppConfirmResetUrl(HttpServletRequest request) {
-        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-reset";
+        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-reset/";
     }
 }

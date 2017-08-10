@@ -35,7 +35,6 @@ public class AuthConnectionInterceptor extends ChannelInterceptorAdapter {
                 processAuthentication(incMessage);
             }
         } else if (StompCommand.CONNECTED.equals(incMessage.getCommand())) {
-            incMessage.setHost("IGPS");
         } else if (StompCommand.DISCONNECT.equals(incMessage.getCommand())) {
             SocketPrincipal principal = (SocketPrincipal) incMessage.getUser();
             if (principal != null) {

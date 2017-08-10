@@ -124,8 +124,8 @@ public class WebConfig {
     }
 
     @Bean
-    public FilterRegistrationBean filterRegistrationBean(){
-        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(encodingFilter());
+    public FilterRegistrationBean encodingFilterRegistrationBean(){
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new CharacterEncodingFilter("UTF-8", true, true));
         filterRegistrationBean.setAsyncSupported(true);
         filterRegistrationBean.setOrder(1);
         filterRegistrationBean.addUrlPatterns("/*");
@@ -134,7 +134,12 @@ public class WebConfig {
     }
 
     @Bean
-    public CharacterEncodingFilter encodingFilter(){
-        return new CharacterEncodingFilter("UTF-8", true, true);
+    public FilterRegistrationBean corsFilterRegistrationBean() {
+        FilterRegistrationBean filterRegistrationBean = new FilterRegistrationBean(new AngularCliCorsFilter());
+        filterRegistrationBean.setAsyncSupported(true);
+        filterRegistrationBean.setOrder(0);
+        filterRegistrationBean.addUrlPatterns("/api/*");
+        filterRegistrationBean.setName("corsFilter");
+        return filterRegistrationBean;
     }
 }

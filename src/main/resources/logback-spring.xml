@@ -1,15 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <include resource="org/springframework/boot/logging/logback/base.xml" />
+    <include resource="org/springframework/boot/logging/logback/defaults.xml" />
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
 
-<!--    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder>
-            <charset>UTF-8</charset>
-            <pattern>%-5level [%thread] %logger{0}: %message%n %ex</pattern>
+    <property name="SERVER_LOGS" value="c:/logs" />
+
+    <appender name="DAILY-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${SERVER_LOGS}/igps.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} -%5p [%15.15t] %-40.40logger{39} : %msg%n
+            </pattern>
+            <charset>utf8</charset>
         </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${SERVER_LOGS}/archived/debug.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>2MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+
     </appender>
 
+    <logger name="org.apache.tomcat.websocket.server.WsRemoteEndpointImplServer" level="DEBUG" additivity="false"/>
+    <logger name="ru.ilonich.igps" level="DEBUG"/>
+
     <root level="INFO">
-        <appender-ref ref="console"/>
-    </root>-->
+        <appender-ref ref="CONSOLE" />
+        <appender-ref ref="DAILY-LOG" />
+    </root>
 </configuration>

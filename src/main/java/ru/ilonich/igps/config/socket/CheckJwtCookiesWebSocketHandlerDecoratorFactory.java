@@ -41,12 +41,12 @@ public class CheckJwtCookiesWebSocketHandlerDecoratorFactory implements WebSocke
                         String jwt = getJwt(cookie);
                         if (isJwtValid(jwt)) {
                             sessionsService.storeForAuthentication(session.getId(), getLogin(jwt), getPwd(jwt));
-                            LOG.debug("Session [{}] might be authenticated", session.getId());
+                            LOG.trace("Session [{}] might be authenticated", session.getId());
                         }
                     }
                 } catch (Exception e) {
                     //not able for authentication
-                    LOG.debug("Should be exception related to jwt validation, check this out: \n", e);
+                    LOG.trace("Should be exception related to jwt validation, check this out: \n", e);
                 }
                 super.afterConnectionEstablished(session);
             }

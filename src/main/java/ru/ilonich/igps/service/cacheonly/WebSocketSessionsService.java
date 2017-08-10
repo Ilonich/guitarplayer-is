@@ -46,6 +46,7 @@ public class WebSocketSessionsService {
         return usersOnline.add(id);
     }
 
+    //TODO передалать (что если с 2-ух вкладок?)
     public boolean removeOnlineUserId(String id) {
         return usersOnline.remove(id);
     }

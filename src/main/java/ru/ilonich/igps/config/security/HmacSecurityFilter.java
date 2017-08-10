@@ -31,7 +31,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 
 public class HmacSecurityFilter extends GenericFilterBean {
-    private static final Logger LOG = LoggerFactory.getLogger(HmacSecurityFilter.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     public static final Integer JWT_TTL = 60*60*24;
     public static final Map<String, String> CLAIM_WITH_CURRENT_ENCODING = Collections.singletonMap(ENCODING_CLAIM_PROPERTY.toString(), HMAC_SHA_256.toString());
@@ -74,11 +74,11 @@ public class HmacSecurityFilter extends GenericFilterBean {
                 String encoding = HmacSigner.getJwtClaim(jwtCookieValue, ENCODING_CLAIM_PROPERTY.toString());
                 String digestServer = HmacSigner.encodeMac(publicSecret, messageDigest.toString(), encoding);
 
-                LOG.debug("HMAC JWT: {}\nHMAC url digest: {}\nHMAC Message server: {}\nHMAC Secret server: {}\nHMAC Digest server: {}\nHMAC Digest client: {}\nHMAC encoding: {}",
+                LOG.trace("HMAC JWT: {}\nHMAC url digest: {}\nHMAC Message server: {}\nHMAC Secret server: {}\nHMAC Digest server: {}\nHMAC Digest client: {}\nHMAC encoding: {}",
                         jwtCookieValue, urlQuery.toString(), messageDigest.toString(), publicSecret, digestServer, digestClient, encoding);
 
                 if (digestClient.equals(digestServer)) {
-                    LOG.debug("Request is valid, digest are matching");
+                    LOG.trace("Request is valid, digest are matching");
                     HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, iss, HmacSigner.getTimeLeftSeconds(jwtCookieValue), CLAIM_WITH_CURRENT_ENCODING);
                     response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
                     filterChain.doFilter(request, response);
@@ -105,7 +105,7 @@ public class HmacSecurityFilter extends GenericFilterBean {
     }
 
     static void setSecurityFilterExceptionResponse(HttpServletResponse response, Exception e, CharSequence url, Logger log) throws IOException {
-        log.debug("Error while generating hmac token", e);
+        log.debug("Error while validating jwt: ", e);
         if (e instanceof ExpiredAuthenticationException) {
             response.setStatus(401);
             response.getWriter().write(JsonUtil.writeValue(new ErrorInfo(url, "ExpiredAuthenticationException", e.getMessage())));

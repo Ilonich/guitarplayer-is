@@ -23,7 +23,7 @@ import static ru.ilonich.igps.config.security.HmacSecurityFilter.*;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.*;
 
 public class XAuthTokenFilter extends GenericFilterBean {
-    private static final Logger LOG = LoggerFactory.getLogger(XAuthTokenFilter.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     private AuthenticationService authenticationService;
     private SecuredRequestCheckService checkService;

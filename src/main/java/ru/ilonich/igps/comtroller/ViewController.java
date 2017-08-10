@@ -10,6 +10,12 @@ public class ViewController {
     //Angular routes
     @RequestMapping({
             "/",
+            "/main",
+            "/dialogs",
+            "/dialogs/{id:\\d+}",
+            "/posts",
+            "/posts/{page:\\d+}",
+            "/post",
             "/profile",
             "/confirm-email/{token:\\w+}",
             "/confirm-reset/{token:\\w+}",

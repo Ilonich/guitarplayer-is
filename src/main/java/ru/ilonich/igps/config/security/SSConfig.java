@@ -32,9 +32,6 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private SecuredRequestCheckService securedRequestCheckService;
 
-    @Autowired
-    private MessageUtil messageUtil;
-
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         DaoAuthenticationConfigurer configurer = auth.userDetailsService(userService);
@@ -64,8 +61,8 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .headers().addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
-                .and()
+                .headers().addHeaderWriter(new XFrameOptionsHeaderWriter(XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)).and()
+                .cors().and()
                 .authorizeRequests()
                 .antMatchers("/api/authenticate").anonymous()
                 .antMatchers("/api/register").anonymous()
@@ -75,23 +72,12 @@ public class SSConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/websocket").anonymous()
                 .antMatchers("/api/websocket/**").anonymous()
                 .antMatchers("/").anonymous()
-                .antMatchers("/api/**").authenticated()
-                .and()
-                .csrf()
-                .disable()
-                .headers()
-                .frameOptions().disable()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .logout()
-                .permitAll()
-                .and()
-                .apply(authTokenConfigurer())
-                .and()
-                .apply(hmacSecurityConfigurer())
-                .and()
+                .antMatchers("/api/**").authenticated().and()
+                .csrf().disable().headers().frameOptions().disable().and()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
+                .logout().permitAll().and()
+                .apply(authTokenConfigurer()).and()
+                .apply(hmacSecurityConfigurer()).and()
                 .requiresChannel().anyRequest().requiresSecure();
     }
 

@@ -28,7 +28,7 @@ import java.util.Map;
 public class MailServiceImpl implements MailService {
 
     private Logger LOG = LoggerFactory.getLogger(getClass());
-    //TODO
+    //TODO когда свой почтовый сервер будет - бб яндекс
     private static final String SYSTEM_MAIL = "ilonich.igps@yandex.ru";
     private static final String ACCOUNT_CONFIRMATION = "mail.account.confirmation";
     private static final String RESET_CONFIRMATION = "mail.reset.confirmation";
