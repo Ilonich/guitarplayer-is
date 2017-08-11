@@ -1,5 +1,7 @@
 package ru.ilonich.igps.service;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -21,6 +23,8 @@ import ru.ilonich.igps.utils.ValidationUtil;
 
 @Service("userService")
 public class UserServiceImpl implements UserService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -53,6 +57,7 @@ public class UserServiceImpl implements UserService {
     public User register(User user, String confirmationUrl) throws HmacException {
         ValidationUtil.checkNew(user);
         VerificationToken token = userRepository.registerAndCreateVerificationToken(user);
+        LOG.info("User [{}] created confirm email token [{}]", user.getEmail(), token.getToken());
         eventPublisher.publishEvent(new OnRegistrationSuccessEvent(token, LocaleContextHolder.getLocale(), confirmationUrl));
         return token.getUser();
     }
@@ -67,6 +72,7 @@ public class UserServiceImpl implements UserService {
     public boolean initiatePasswordReset(String email, String confirmationUrl) throws HmacException {
         PasswordResetToken token = userRepository.createPasswordResetTokenForUserByEmail(email);
         if (token != null) {
+            LOG.info("User [{}] created password reset token [{}]", email, token.getToken());
             eventPublisher.publishEvent(new OnPasswordResetEvent(token, LocaleContextHolder.getLocale(), confirmationUrl));
             return true;
         } else {

@@ -34,6 +34,9 @@ import ru.ilonich.igps.config.socket.WebSocketConfig;
 import ru.ilonich.igps.config.web.MvcConfig;
 import ru.ilonich.igps.config.web.WebConfig;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 @Configuration
 @EnableAutoConfiguration(exclude = {
         JacksonAutoConfiguration.class, DataSourceAutoConfiguration.class,
@@ -52,10 +55,11 @@ import ru.ilonich.igps.config.web.WebConfig;
 })
 @Import({WebConfig.class, MvcConfig.class, JpaConfig.class,
         SSConfig.class, MailConfig.class, WebSocketConfig.class,
-        AsyncConfig.class, TaskConfig.class,})
+        AsyncConfig.class, TaskConfig.class})
 public class AppMain extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         ApplicationContext ac = SpringApplication.run(AppMain.class, args);
+        //Stream.of(ac.getBeanDefinitionNames()).forEach(System.out::println);
     }
 }

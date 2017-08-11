@@ -1,5 +1,7 @@
 package ru.ilonich.igps.comtroller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -15,6 +17,8 @@ import ru.ilonich.igps.service.UserService;
 @RequestMapping(value = "/api/confirm", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ConfirmationController {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ConfirmationController.class);
+
     @Autowired
     private UserService userService;
 
@@ -23,6 +27,7 @@ public class ConfirmationController {
         if (userService.confirmRegistration(token)){
             return new ResponseEntity(HttpStatus.ACCEPTED);
         } else {
+            LOG.info("Confirm email token not found [{}]", token);
             return new ResponseEntity(HttpStatus.GONE);
         }
     }
@@ -32,6 +37,7 @@ public class ConfirmationController {
         if (userService.confirmPasswordReset(token)){
             return new ResponseEntity(HttpStatus.ACCEPTED);
         } else {
+            LOG.info("Confirm reset password token not found [{}]", token);
             return new ResponseEntity(HttpStatus.GONE);
         }
     }

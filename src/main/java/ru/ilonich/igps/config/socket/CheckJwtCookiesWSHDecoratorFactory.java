@@ -18,14 +18,14 @@ import static ru.ilonich.igps.config.security.misc.SecurityConstants.CSRF_CLAIM_
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.JWT_APP_COOKIE;
 import static ru.ilonich.igps.config.security.misc.SecurityConstants.JWT_CLAIM_LOGIN;
 
-public class CheckJwtCookiesWebSocketHandlerDecoratorFactory implements WebSocketHandlerDecoratorFactory {
+public class CheckJwtCookiesWSHDecoratorFactory implements WebSocketHandlerDecoratorFactory {
 
     private Logger LOG = LoggerFactory.getLogger(getClass());
 
     private SecuredRequestCheckService checkService;
     private WebSocketSessionsService sessionsService;
 
-    CheckJwtCookiesWebSocketHandlerDecoratorFactory(SecuredRequestCheckService checkService, WebSocketSessionsService sessionsService) {
+    CheckJwtCookiesWSHDecoratorFactory(SecuredRequestCheckService checkService, WebSocketSessionsService sessionsService) {
         this.checkService = checkService;
         this.sessionsService = sessionsService;
     }
@@ -35,6 +35,9 @@ public class CheckJwtCookiesWebSocketHandlerDecoratorFactory implements WebSocke
         return new WebSocketHandlerDecorator(handler) {
             @Override
             public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+                //https://jira.spring.io/browse/SPR-12812
+                //https://stackoverflow.com/questions/36692582/some-spring-websocket-sessions-never-disconnect
+                super.afterConnectionEstablished(session);
                 try {
                     String cookie = session.getHandshakeHeaders().get(COOKIE).get(0);
                     if (cookie.contains(JWT_APP_COOKIE.toString())) {
@@ -44,11 +47,22 @@ public class CheckJwtCookiesWebSocketHandlerDecoratorFactory implements WebSocke
                             LOG.trace("Session [{}] might be authenticated", session.getId());
                         }
                     }
-                } catch (Exception e) {
+                } catch (ExpiredAuthenticationException | HmacException | ParseException e) {
                     //not able for authentication
-                    LOG.trace("Should be exception related to jwt validation, check this out: \n", e);
                 }
-                super.afterConnectionEstablished(session);
+                LOG.trace("#afterConnectionEstablished [{}] {}", session.getId());
+            }
+
+            @Override
+            public void handleTransportError(WebSocketSession session, Throwable exception) throws Exception {
+                LOG.trace("#handleTransportError [{}] {}", session.getId(), exception.getMessage());
+                super.handleTransportError(session, exception);
+            }
+
+            @Override
+            public void afterConnectionClosed(WebSocketSession session, CloseStatus closeStatus) throws Exception {
+                LOG.trace("#afterConnectionClosed [{}] {}", session.getId(), closeStatus.toString());
+                super.afterConnectionClosed(session, closeStatus);
             }
 
             private String getJwt(String cookie) {

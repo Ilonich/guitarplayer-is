@@ -61,21 +61,6 @@ public class AuthenticationController {
         return result;
     }
 
-    @PostMapping(value = "/reset")
-    public ResponseEntity initiateReset(@RequestBody String email, HttpServletRequest request) throws Exception {
-        if (resetAttemptService.isBlocked(request.getRemoteAddr())){
-            throw new ApplicationException(RESET_BLOCKED, HttpStatus.LOCKED);
-        }
-        log.info("{} forgot password, trying to reset", email);
-        if (authenticationService.initiateReset(email, getAppConfirmResetUrl(request))) {
-            resetAttemptService.attempt(request.getRemoteAddr());
-            return new ResponseEntity(HttpStatus.ACCEPTED);
-        } else {
-            resetAttemptService.attempt(request.getRemoteAddr());
-            throw new NotFoundException(NOT_FOUND_EMAIL, HttpStatus.NOT_FOUND, email);
-        }
-    }
-
     @PutMapping(value = "/register")
     public ResponseEntity<AuthTO> register(@Valid @RequestBody RegisterTO registerTO, HttpServletRequest request, HttpServletResponse response) throws Exception {
         User user = authenticationService.register(registerTO, getAppConfirmEmailUrl(request));
@@ -92,6 +77,21 @@ public class AuthenticationController {
         authenticationService.logout(authenticatedUser);
     }
 
+    @PostMapping(value = "/reset")
+    public ResponseEntity initiateReset(@RequestBody String email, HttpServletRequest request) throws Exception {
+        if (resetAttemptService.isBlocked(request.getRemoteAddr())){
+            throw new ApplicationException(RESET_BLOCKED, HttpStatus.LOCKED);
+        }
+        log.info("{} forgot password, trying to reset", email);
+        if (authenticationService.initiateReset(email, getAppConfirmResetUrl(request))) {
+            resetAttemptService.attempt(request.getRemoteAddr());
+            return new ResponseEntity(HttpStatus.ACCEPTED);
+        } else {
+            resetAttemptService.attempt(request.getRemoteAddr());
+            throw new NotFoundException(NOT_FOUND_EMAIL, HttpStatus.NOT_FOUND, email);
+        }
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorInfo> badCredentials(HttpServletRequest req, BadCredentialsException e) {
         loginAttemptService.loginFailed(req.getRemoteAddr());
@@ -104,10 +104,15 @@ public class AuthenticationController {
     }
 
     private String getAppConfirmEmailUrl(HttpServletRequest request) {
-        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-email/";
+        return getAppUrl(request) + "/confirm-email/";
     }
 
     private String getAppConfirmResetUrl(HttpServletRequest request) {
-        return "https://" + request.getServerName() + ":" + request.getServerPort() + "/confirm-reset/";
+        return getAppUrl(request) + "/confirm-reset/";
+    }
+
+    private String getAppUrl(HttpServletRequest request) {
+        String origin = request.getHeader("Origin");
+        return origin == null ? "https://" + request.getServerName() + ":" + request.getServerPort() : origin;
     }
 }

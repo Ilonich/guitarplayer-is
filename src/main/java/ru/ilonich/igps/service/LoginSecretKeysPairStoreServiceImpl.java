@@ -55,10 +55,12 @@ public class LoginSecretKeysPairStoreServiceImpl implements LoginSecretKeysPairS
 
     @Override
     @Transactional
-    public void removeAllExpiried(OffsetDateTime now) {
+    public int removeAllExpiried(OffsetDateTime now) {
         List<String> toRemoveFromCache = keyPairRepository.findAllExpiredTokensLogins(now);
+        int size = toRemoveFromCache.size();
         keyPairRepository.deleteAllExpiredTokens(now);
         keyCache.invalidateAll(toRemoveFromCache);
+        return size;
     }
 
     @Override

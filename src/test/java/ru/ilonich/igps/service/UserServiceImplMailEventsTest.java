@@ -54,17 +54,12 @@ public class UserServiceImplMailEventsTest {
 
     private GreenMail greenMail;
 
-    @BeforeClass
-    public static void before(){
-        Security.setProperty("ssl.SocketFactory.provider", DummySSLSocketFactory.class.getName());
-    }
-
     @Before
     public void startMailServer() {
-        greenMail = new GreenMail(ServerSetupTest.SMTPS);
+        greenMail = new GreenMail(ServerSetupTest.SMTP);
         greenMail.start();
 
-        javaMailSender.setPort(3465);
+        javaMailSender.setPort(3025);
         javaMailSender.setHost("localhost");
         javaMailSender.setUsername("test");
         javaMailSender.setPassword("xxx");

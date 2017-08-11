@@ -128,7 +128,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
         registry.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
-        registry.addDecoratorFactory(new CheckJwtCookiesWebSocketHandlerDecoratorFactory(checkService, webSocketSessionsService));
+        registry.addDecoratorFactory(new CheckJwtCookiesWSHDecoratorFactory(checkService, webSocketSessionsService));
 /*       * Add a factory that to decorate the handler used to process WebSocket
          * messages. This may be useful for some advanced use cases, for example
          * to allow Spring Security to forcibly close the WebSocket session when

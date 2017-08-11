@@ -8,6 +8,6 @@ import java.time.OffsetDateTime;
 public interface LoginSecretKeysPairStoreService {
     void store(LoginSecretKeysPair loginSecretKeysPair);
     void remove(String login);
-    void removeAllExpiried(OffsetDateTime now);
+    int removeAllExpiried(OffsetDateTime now);
     LoginSecretKeysPair get(String login) throws ExpiredAuthenticationException;
 }

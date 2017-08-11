@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -28,8 +29,7 @@ import java.util.Map;
 public class MailServiceImpl implements MailService {
 
     private Logger LOG = LoggerFactory.getLogger(getClass());
-    //TODO когда свой почтовый сервер будет - бб яндекс
-    private static final String SYSTEM_MAIL = "ilonich.igps@yandex.ru";
+    private static final String SYSTEM_MAIL = "no-reply.i-gps@jeffs.ru";
     private static final String ACCOUNT_CONFIRMATION = "mail.account.confirmation";
     private static final String RESET_CONFIRMATION = "mail.reset.confirmation";
     private static final String NEW_PASSWORD = "mail.new.password";
@@ -61,9 +61,11 @@ public class MailServiceImpl implements MailService {
             mimeMessageHelper.addInline("igpsLogo", resource);
             javaMailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (MessagingException | IOException e) {
-            LOG.warn("Failed to send message ({}) \n {}", event.getToken().getUser().getEmail(), e.getMessage());
+            LOG.error("Failed to send message ({}) \n {}", event.getToken().getUser().getEmail(), e.getMessage());
         } catch (TemplateException e) {
-            LOG.warn("Freemarker template -> string failed", e);
+            LOG.error("Freemarker template -> string failed", e);
+        } catch (MailException e) {
+            LOG.error("Email confirmation message not send to user [{}]", event.getToken().getUser().getEmail(), e);
         }
     }
 
@@ -87,9 +89,11 @@ public class MailServiceImpl implements MailService {
             mimeMessageHelper.addInline("igpsLogo", resource);
             javaMailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (MessagingException | IOException e) {
-            LOG.warn("Failed to send message ({}) \n {}", event.getToken().getUser().getEmail(), e.getMessage());
+            LOG.error("Failed to send message ({}) \n {}", event.getToken().getUser().getEmail(), e.getMessage());
         } catch (TemplateException e) {
-            LOG.warn("Freemarker template -> string failed", e);
+            LOG.error("Freemarker template -> string failed", e);
+        } catch (MailException e) {
+            LOG.error("Reset password confirmation message not send to user [{}]", event.getToken().getUser().getEmail(), e);
         }
     }
 
@@ -109,9 +113,11 @@ public class MailServiceImpl implements MailService {
             mimeMessageHelper.addInline("igpsLogo", resource);
             javaMailSender.send(mimeMessageHelper.getMimeMessage());
         } catch (MessagingException | IOException e) {
-            LOG.warn("Failed to send message ({}) \n {}", event.getEmail(), e.getMessage());
+            LOG.error("Failed to send message ({}) \n {}", event.getEmail(), e.getMessage());
         } catch (TemplateException e) {
-            LOG.warn("Freemarker template -> string failed", e);
+            LOG.error("Freemarker template -> string failed", e);
+        } catch (MailException e) {
+            LOG.error("New password message not send to user [{}]", event.getEmail(), e);
         }
     }
 

@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.ilonich.igps.exception.ApplicationException;
 import ru.ilonich.igps.service.FrontendValidationService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Map;
 
