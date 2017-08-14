@@ -1,11 +1,11 @@
 import { Component, AfterViewInit, ViewChildren, QueryList, ChangeDetectorRef } from '@angular/core';
-import { LoginState } from '../classes/login-state';
-import { LoginingResolverService } from '../services/logining-resolver.service';
+import { LoginState } from '../../classes/login-state';
+import { LoginingResolverService } from '../../services/logining-resolver.service';
 import { RegisterFormComponent } from './register-form/register-form.component';
 import { LoginFormComponent } from './login-form/login-form.component';
-import { AuthenticationService, INTERNAL_SERVER_ERROR } from '../services/authentication.service';
+import { AuthenticationService, INTERNAL_SERVER_ERROR } from '../../services/authentication.service';
 import { Observable } from 'rxjs/Rx';
-import { ErrorInfo } from '../classes/error-info';
+import { ErrorInfo } from '../../classes/error-info';
 declare var jQuery: any;
 
 @Component({

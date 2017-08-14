@@ -10,4 +10,5 @@ public interface LoginSecretKeysPairStoreService {
     void remove(String login);
     int removeAllExpiried(OffsetDateTime now);
     LoginSecretKeysPair get(String login) throws ExpiredAuthenticationException;
+    LoginSecretKeysPair nullableGet(String login);
 }

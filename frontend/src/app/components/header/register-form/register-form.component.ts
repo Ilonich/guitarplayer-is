@@ -1,6 +1,6 @@
 import {Component, OnInit} from '@angular/core';
 import {FormGroup, FormBuilder, Validators, AbstractControl} from '@angular/forms';
-import {CustomAsyncValidators} from '../../validators/unique-constraint.directive';
+import {CustomAsyncValidators} from '../../../validators/unique-constraint.directive';
 
 @Component({
   selector: 'register-form',

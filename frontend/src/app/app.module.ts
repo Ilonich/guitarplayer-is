@@ -14,22 +14,22 @@ import { UsersService } from './services/users.service';
 import { ConfirmationService } from './services/confirmation.service';
 import { MyUglyStompService } from './services/my-ugly-stomp.service';
 
-import { AppComponent } from './app.component';
-import { HEADER_COMPONENTS } from './header/header';
-import { LeftsidebarComponent } from './leftsidebar/leftsidebar.component';
-import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
-import { UserProfileComponent } from './users/user-profile/user-profile.component';
-import { UserPageComponent } from './users/user-page/user-page.component';
-import { UsersListComponent } from './users/users-list/users-list.component';
-import { EmailConfirmationComponent } from './confirmation/email-confirmation/email-confirmation.component';
-import { PasswordResetConfirmationComponent } from './confirmation/password-reset-confirmation/password-reset-confirmation.component';
-import { DialogsListComponent } from './dialogs/dialogs-list/dialogs-list.component';
-import { DialogComponent } from './dialogs/dialog/dialog.component';
-import { PostsPreviewComponent } from './posts/posts-preview/posts-preview.component';
-import { PostFullComponent } from './posts/post-full/post-full.component';
-import { ItemsListComponent } from './market/items-list/items-list.component';
-import { ItemComponent } from './market/item/item.component';
-import { MainPageComponent } from './main-page/main-page.component';
+import { MainComponent } from './components/main.component';
+import { HEADER_COMPONENTS } from './components/header/header';
+import { LeftsidebarComponent } from './components/leftsidebar/leftsidebar.component';
+import { PageNotFoundComponent } from './components/page-not-found/page-not-found.component';
+import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
+import { UserPageComponent } from './components/users/user-page/user-page.component';
+import { UsersListComponent } from './components/users/users-list/users-list.component';
+import { EmailConfirmationComponent } from './components/confirmation/email-confirmation/email-confirmation.component';
+import { PasswordResetConfirmationComponent } from './components/confirmation/password-reset-confirmation/password-reset-confirmation.component';
+import { DialogsListComponent } from './components/dialogs/dialogs-list/dialogs-list.component';
+import { DialogComponent } from './components/dialogs/dialog/dialog.component';
+import { PostsPreviewComponent } from './components/posts/posts-preview/posts-preview.component';
+import { PostFullComponent } from './components/posts/post-full/post-full.component';
+import { ItemsListComponent } from './components/market/items-list/items-list.component';
+import { ItemComponent } from './components/market/item/item.component';
+import { MainPageComponent } from './components/main-page/main-page.component';
 
 
 export function httpFactory(
@@ -58,7 +58,7 @@ export let myUglyStompService = {
 
 @NgModule({
   declarations: [
-    AppComponent,
+    MainComponent,
     HEADER_COMPONENTS,
     LeftsidebarComponent,
     PageNotFoundComponent,
@@ -82,7 +82,7 @@ export let myUglyStompService = {
     HttpModule,
     AppRouterModule
   ],
-  bootstrap: [ AppComponent ],
+  bootstrap: [ MainComponent ],
   providers: [
     LoginingResolverService,
     AuthGuardService,

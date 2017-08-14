@@ -71,4 +71,13 @@ public class LoginSecretKeysPairStoreServiceImpl implements LoginSecretKeysPairS
             throw (ExpiredAuthenticationException) e.getCause();
         }
     }
+
+    @Override
+    public LoginSecretKeysPair nullableGet(String login) {
+        try {
+            return keyCache.get(login);
+        } catch (ExecutionException e) {
+            return null;
+        }
+    }
 }

@@ -3,36 +3,34 @@ package ru.ilonich.igps.model;
 import ru.ilonich.igps.model.enumerations.Role;
 
 import java.security.Principal;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class SocketPrincipal implements Principal {
 
-    private String idAsPrincipalName;
-    private String email;
-    private String csrfAsPwd;
+    private String name;
     private boolean privileged;
+    private static final Set<Role> REMOVAL_SET = new HashSet<>();
+    static {
+        REMOVAL_SET.add(Role.USER);
+        REMOVAL_SET.add(Role.ANONYMOUS);
+    }
 
-    public SocketPrincipal(User user, String csrfCheck) {
-        this.idAsPrincipalName = user.getId().toString();
-        this.email = user.getEmail();
-        this.csrfAsPwd = csrfCheck;
+    //anonymous
+    public SocketPrincipal(String address) {
+        this.name = address;
+        this.privileged = false;
+    }
+
+    public SocketPrincipal(User user) {
+        this.name = user.getId().toString();
         Set<Role> anotherThenRoleUser = new HashSet<Role>(user.getRoles());
-        anotherThenRoleUser.remove(Role.USER);
+        anotherThenRoleUser.removeAll(REMOVAL_SET);
         this.privileged = !anotherThenRoleUser.isEmpty();
     }
 
     @Override
     public String getName() {
-        return idAsPrincipalName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getCsrfAsPwd() {
-        return csrfAsPwd;
+        return name;
     }
 
     public boolean isPrivileged() {
@@ -41,10 +39,8 @@ public class SocketPrincipal implements Principal {
 
     @Override
     public int hashCode() {
-        int result = idAsPrincipalName.hashCode();
-        result = 17 * result + email.hashCode();
-        result = 23 * result + csrfAsPwd.hashCode();
-        result = 31 * (privileged ? 0 : 1);
+        int result = name.hashCode();
+        result = 11 * result + (privileged ? 0 : 1);
         return result;
     }
 
@@ -57,17 +53,13 @@ public class SocketPrincipal implements Principal {
         }
         SocketPrincipal another = (SocketPrincipal) obj;
         return another.isPrivileged() == this.privileged &&
-                another.getCsrfAsPwd().equals(this.csrfAsPwd) &&
-                another.getName().equals(this.idAsPrincipalName) &&
-                another.getEmail().equals(this.email);
+                another.getName().equals(this.name);
     }
 
     @Override
     public String toString() {
         return "SocketPrincipal{" +
-                "idAsPrincipalName='" + idAsPrincipalName + '\'' +
-                ", email='" + email + '\'' +
-                ", csrfAsPwd='" + csrfAsPwd + '\'' +
+                "name='" + name + '\'' +
                 ", privileged=" + privileged +
                 '}';
     }

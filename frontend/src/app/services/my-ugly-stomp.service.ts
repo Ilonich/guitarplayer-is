@@ -1,15 +1,19 @@
 import { Injectable } from '@angular/core';
 
-import {Observable, Observer, Subscription} from 'rxjs/Rx';
+import { Observable, Observer, Subscription } from 'rxjs/Rx';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 
 import * as Stomp from '@stomp/stompjs';
-import {StompHeaders, StompSubscription} from '@stomp/stompjs';
-
-import { StompConfig } from '@stomp/ng2-stompjs'
-import {TokenHttpInterceptor} from '../interceptor/token-http-interceptor';
 import * as SockJS from 'sockjs-client';
-import {LoginingResolverService} from './logining-resolver.service';
+import { StompHeaders, StompSubscription } from '@stomp/stompjs';
+import { StompConfig } from '@stomp/ng2-stompjs'
+import { TokenHttpInterceptor } from '../interceptor/token-http-interceptor';
+import { LoginingResolverService } from './logining-resolver.service';
+import { Authentication } from '../classes/authentication';
+
+import { HmacSHA256 } from 'crypto-js';
+import { HmacSHA1 } from 'crypto-js';
+import { HmacMD5 } from 'crypto-js';
 
 /**
  * Possible states for the STOMP service
@@ -48,16 +52,45 @@ export class MyUglyStompService {
         debug: true
     };
 
+    protected getUserHeaders(): StompHeaders {
+        const current = this.logining.getAuthentication();
+        return {
+            login: current.csrf,
+            passcode: this.encodeCsrf(current)
+        };
+    }
+
+    protected encodeCsrf(auth: Authentication): string {
+        if (auth.encodingLvl === 'HmacSHA256') {
+            return HmacSHA256(auth.csrf, auth.publicKey);
+        } else if (auth.encodingLvl === 'HmacSHA1') {
+            return HmacSHA1(auth.csrf, auth.publicKey);
+        } else if (auth.encodingLvl === 'HmacMD5') {
+            return HmacMD5(auth.csrf, auth.publicKey);
+        }
+    }
+
     public _init(): void {
         this.logining.stateFeed.subscribe(loginState => {
             if (loginState.logged) {
-                setTimeout(() => this.disconnect(), 2500);
-                setTimeout(() => this.try_connect({login: this.logining.getAuthentication().email, passcode: this.logining.getAuthentication().csrf}), 5000);
+                this.safeReconnectLoop(this.getUserHeaders());
             } else {
-                setTimeout(() => this.disconnect(), 2500);
-                setTimeout(() => this.try_connect(MyUglyStompService.config.headers), 5000);
+                this.safeReconnectLoop(MyUglyStompService.config.headers);
             }
         });
+    }
+
+    private safeReconnectLoop(headers: StompHeaders): void {
+        setTimeout( () => {
+            if (this.state.getValue() === StompState.CLOSED) {
+                this.try_connect(headers);
+            } else if (this.state.getValue() === StompState.CONNECTED) {
+                this.disconnect();
+                this.safeReconnectLoop(headers);
+            } else {
+                this.safeReconnectLoop(headers);
+            }
+        }, 1000);
     }
 
     //==============================================================================

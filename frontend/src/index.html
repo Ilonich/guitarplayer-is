@@ -5,9 +5,103 @@
     <title>IGPS</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        .loading {
+            position: absolute;
+            left: 0;
+            top: 52%;
+            width: 100%;
+            text-align: center;
+            font-size: 18px;
+            letter-spacing: 3px;
+            color: #000000;
+            border-bottom: solid;
+            border-top: solid;
+        }
 
+        .icon {
+            width:60px;
+            height:60px;
+            background: #000000;
+            border-radius:50%;
+            overflow:hidden;
+            position:fixed;
+            margin:auto;
+            top:0; right:0; bottom:0; left:0;
+            background: #fdf4ff linear-gradient(top, #000000, #6d9a1a 100%);
+            animation: icon 1s infinite;
+        }
+
+        .icon .hexagon {
+            width:32px;
+            height:20px;
+            background: #ffffff;
+            position:absolute;
+            left:50%; margin-left:-16px;
+            top:47%; margin-top:-10px;
+        }
+
+        .icon .hexagon::before {
+            content:'';
+            position:absolute;
+            width:0; height:0;
+            border-bottom:8px solid #ffffff;
+            border-left:16px solid transparent;
+            border-right:16px solid transparent;
+            top:-8px;
+        }
+
+        .icon .hexagon::after {
+            content:'';
+            position:absolute;
+            width:0; height:0;
+            border-top:8px solid #ffffff;
+            border-left:16px solid transparent;
+            border-right:16px solid transparent;
+            bottom:-8px;
+        }
+
+        .icon .lines {
+            position:absolute;
+            width: 40px;
+            height:50px;
+            background:transparent;
+            border-top:4px solid #fdfffc;
+            border-radius:12px;
+        }
+
+        .icon .lines:nth-child(2) {
+            transform:rotate(30deg);
+            left:-4px;
+            top:7px;
+        }
+
+        .icon .lines:nth-child(3) {
+            transform:rotate(150deg);
+            left:14px;
+            top:-7px;
+        }
+
+        .icon .lines:nth-child(4) {
+            transform:rotate(270deg);
+            left:19px;
+            top:15px;
+        }
+
+        @keyframes icon {
+            to { transform:rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <app-root>Loading...</app-root>
+  <app-root>
+      <div class="icon">
+          <div class="hexagon"></div>
+          <div class="lines"></div>
+          <div class="lines"></div>
+          <div class="lines"></div>
+      </div>
+      <p class="loading">LOADING</p>
+  </app-root>
 </body>
 </html>

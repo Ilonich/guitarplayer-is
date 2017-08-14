@@ -50,19 +50,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         customClaims.put(CSRF_CLAIM_HEADER.toString(), csrfId);
         customClaims.put(JWT_CLAIM_LOGIN.toString(), user.getUsername());
 
-        String privateSecret = HmacSigner.generateSecret();
-        String publicSecret = HmacSigner.generateSecret();
-        LoginSecretKeysPair loginSecretKeysPair = new LoginSecretKeysPair(user.getUsername(), publicSecret, privateSecret, OffsetDateTime.now().plusSeconds(JWT_TTL));
+        LoginSecretKeysPair loginSecretKeysPair = keysStoreService.nullableGet(user.getUsername());
+        if (loginSecretKeysPair == null) {
+            String privateSecret = HmacSigner.generateSecret();
+            String publicSecret = HmacSigner.generateSecret();
+            loginSecretKeysPair = new LoginSecretKeysPair(user.getUsername(), publicSecret, privateSecret, OffsetDateTime.now().plusSeconds(JWT_TTL));
+        } else {
+            loginSecretKeysPair.setExpirationDate(OffsetDateTime.now().plusSeconds(JWT_TTL));
+        }
         keysStoreService.store(loginSecretKeysPair);
 
-        HmacToken privateToken = HmacSigner.getSignedToken(privateSecret, user.getUsername(), JWT_TTL, customClaims);
-        HmacToken publicToken = HmacSigner.getSignedToken(publicSecret, user.getUsername(), JWT_TTL, CLAIM_WITH_CURRENT_ENCODING);
+        HmacToken privateToken = HmacSigner.getSignedToken(loginSecretKeysPair.getPrivateKey(), user.getUsername(), JWT_TTL, customClaims);
+        HmacToken publicToken = HmacSigner.getSignedToken(loginSecretKeysPair.getPublicKey(), user.getUsername(), JWT_TTL, CLAIM_WITH_CURRENT_ENCODING);
 
         response.addCookie(buildPrivateJwtCookie(privateToken.getJwt()));
         response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
         response.setHeader(CSRF_CLAIM_HEADER.toString(), csrfId);
         response.setHeader(HttpHeaders.WWW_AUTHENTICATE, HMAC_SHA_256.toString());
-        response.setHeader(X_SECRET.toString(), publicSecret);
+        response.setHeader(X_SECRET.toString(), loginSecretKeysPair.getPublicKey());
 
         return AuthTO.fromUser(user.getUser());
     }

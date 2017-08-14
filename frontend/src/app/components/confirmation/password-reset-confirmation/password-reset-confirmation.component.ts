@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute, ParamMap } from '@angular/router';
-import { ConfirmationService } from '../../services/confirmation.service';
+import { ConfirmationService } from '../../../services/confirmation.service';
 import { Title } from '@angular/platform-browser';
 
 @Component({
-  selector: 'app-email-confirmation',
-  templateUrl: './email-confirmation.component.html',
-  styleUrls: ['./email-confirmation.component.css']
+  selector: 'app-password-reset-confirmation',
+  templateUrl: './password-reset-confirmation.component.html',
+  styleUrls: ['./password-reset-confirmation.component.css']
 })
-export class EmailConfirmationComponent implements OnInit {
+export class PasswordResetConfirmationComponent implements OnInit {
 
   private success: boolean;
 
@@ -23,9 +23,9 @@ export class EmailConfirmationComponent implements OnInit {
       title => this.title.setTitle(title)
     );
     const token = this.route.snapshot.paramMap.get('token');
-    this.confService.confirmEmail(token)
-        .subscribe(success => this.success = success,
-            error => this.success = false);
+    this.confService.confirmReset(token)
+      .subscribe(success => this.success = success,
+              error => this.success = false);
   }
 
   gotoMain() {

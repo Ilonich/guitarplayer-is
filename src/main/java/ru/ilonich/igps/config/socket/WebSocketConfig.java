@@ -15,6 +15,7 @@ import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.*;
 import ru.ilonich.igps.config.data.misc.JsonMapper;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
+import ru.ilonich.igps.service.UserService;
 import ru.ilonich.igps.service.cacheonly.WebSocketSessionsService;
 
 import java.util.List;
@@ -43,7 +44,7 @@ import java.util.List;
 @Configuration
 @EnableWebSocketMessageBroker
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
-public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer { //WebSocketMessageBrokerConfigurationSupport
 
     @Autowired
     @Qualifier("clientOutboundChannel")
@@ -54,6 +55,9 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Autowired
     private SecuredRequestCheckService checkService;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -103,40 +107,22 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
         1) Use the STOMP client to pass authentication header(s) at connect time.
         2) Process the authentication header(s) with a ChannelInterceptor.
         Note that an interceptor only needs to authenticate and set the user header on the CONNECT Message.
-        Spring will note and save the authenticated user and associate it with subsequent STOMP messages on the same session:
-
-        registration.setInterceptors(new ChannelInterceptorAdapter() {
-
-            @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
-
-                StompHeaderAccessor accessor =
-                    MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
-                if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    Principal user = ... ; // access authentication header(s)
-                    accessor.setUser(user);
-                }
-
-                return message;
-            }
-        });
-         */
-        registration.setInterceptors(new AuthConnectionInterceptor(clientOutboundChannel, webSocketSessionsService));
+        Spring will note and save the authenticated user and associate it with subsequent STOMP messages on the same session
+        */
+        registration.setInterceptors(new AuthenticateConnectionsInterceptor(clientOutboundChannel, webSocketSessionsService,
+                checkService, userService));
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
         registry.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
-        registry.addDecoratorFactory(new CheckJwtCookiesWSHDecoratorFactory(checkService, webSocketSessionsService));
+        registry.addDecoratorFactory(new RegisterSessionWebSocketHanlerDecoratorFactory(webSocketSessionsService));
 /*       * Add a factory that to decorate the handler used to process WebSocket
          * messages. This may be useful for some advanced use cases, for example
          * to allow Spring Security to forcibly close the WebSocket session when
          * the corresponding HTTP session expires.
          * registry.addDecoratorFactory()*/
     }
-
-
 
     @Override
     public void configureClientOutboundChannel(ChannelRegistration registration) {

@@ -1,57 +1,66 @@
 package ru.ilonich.igps.service.cacheonly;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import ru.ilonich.igps.model.SocketPrincipal;
-import ru.ilonich.igps.model.User;
-import ru.ilonich.igps.service.UserService;
+import org.springframework.web.socket.WebSocketSession;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.IOException;
+import java.security.Principal;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class WebSocketSessionsService {
 
-    @Autowired
-    private UserService userService;
+    private final static Logger LOG = LoggerFactory.getLogger(WebSocketSessionsService.class);
 
-    private Cache<String, SocketPrincipal> socketSessionsPreparedPrincipalsCache;
+    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
-    private Set<String> usersOnline = Collections.synchronizedSet(new HashSet<>());
+    private final Map<String, WebSocketSession> sessionMap = new ConcurrentHashMap<>();
+
+    private final Map<String, List<String>> principalSessionsMap = new ConcurrentHashMap<>();
 
     public WebSocketSessionsService() {
-        this.socketSessionsPreparedPrincipalsCache = CacheBuilder.newBuilder()
-                .expireAfterAccess(1, TimeUnit.SECONDS)
-                .expireAfterWrite(60, TimeUnit.SECONDS)
-                .maximumSize(100)
-                .build();
+        scheduler.scheduleAtFixedRate(() -> {
+            sessionMap.keySet().forEach(k -> {
+                try {
+                    WebSocketSession session = sessionMap.get(k);
+                    session.close();
+                    sessionMap.remove(k);
+                } catch (IOException e) { //IOException
+                    LOG.error("Error while closing websocket session: {}", e);
+                }
+            });
+            LOG.info("Current sessions count: {} \n Current sessions associated with principal count {} \n Current sessions with unique principal count {}",
+                    sessionMap.size(),
+                    principalSessionsMap.entrySet().stream().mapToInt((e) -> e.getValue().size()).sum(),
+                    principalSessionsMap.size());
+        }, 15, 15, TimeUnit.MINUTES);
     }
 
-    public void storeForAuthentication(String sessionId, String login, String pwd) {
-        User user = userService.getByEmail(login);
-        if (user != null) {
-            socketSessionsPreparedPrincipalsCache.put(sessionId, new SocketPrincipal(user, pwd));
-        }
+    public void registerSession(WebSocketSession session) {
+        sessionMap.put(session.getId(), session);
     }
 
-    public SocketPrincipal getPrincipalCandidate(String sessionId) {
-        return socketSessionsPreparedPrincipalsCache.getIfPresent(sessionId);
+    public WebSocketSession getSessionById(String sessionId) {
+        return sessionMap.get(sessionId);
     }
 
-    public boolean addOnlineUserId(String id) {
-        return usersOnline.add(id);
+    public void associatePrincipalWithSession(Principal user, String sessionId) {
+
     }
 
-    //TODO передалать (что если с 2-ух вкладок?)
-    public boolean removeOnlineUserId(String id) {
-        return usersOnline.remove(id);
+    public void dissociatePrincipalWithSession(Principal user, String sessionId) {
+
     }
 
-    public boolean isUserOnline(Integer userId) {
-        return usersOnline.contains(userId.toString());
+    public boolean isUserOnline(Integer userId){
+        return principalSessionsMap.containsKey(String.valueOf(userId));
     }
+
 }
