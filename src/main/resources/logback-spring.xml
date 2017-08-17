@@ -24,7 +24,7 @@
 
     </appender>
 
-    <logger name="org.apache.tomcat.websocket.server.WsRemoteEndpointImplServer" level="ERROR"/>
+    <logger name="org.apache.tomcat.websocket.server.WsRemoteEndpointImplServer" level="WARN"/>
     <logger name="ru.ilonich.igps" level="DEBUG"/>
 
     <root level="INFO">

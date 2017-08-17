@@ -2,6 +2,7 @@ package ru.ilonich.igps.config.socket;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -11,16 +12,26 @@ import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.messaging.converter.MessageConverter;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.socket.config.annotation.*;
 import ru.ilonich.igps.config.data.misc.JsonMapper;
 import ru.ilonich.igps.service.SecuredRequestCheckService;
 import ru.ilonich.igps.service.UserService;
-import ru.ilonich.igps.service.cacheonly.WebSocketSessionsService;
 
 import java.util.List;
 
+//TODO удалить копипасту документации Spring
 /**
+ * https://github.com/sockjs/sockjs-node#authorisation
+ * https://stackoverflow.com/questions/25486889/websocket-stomp-over-sockjs-http-custom-headers
+ * https://stackoverflow.com/questions/43475884/spring-security-token-based-authentication-for-sockjs-stomp-web-socket
+ * Мой велосипед: после handshake socket-сессию в контекст, при получении сообщения CONNECT брать из сессии handshake заголовки,
+ * парсить jwt токен из cookie и валидировать c приватным ключом, а также проверять stomp login & passcode заголовки
+ * в которые клиент устанавливает raw csrf и csrf закодированный hmac публичным ключом конкретного issuer'a из jwt
+ * После проверки сохраняется в контекст связь юзера и сессии, см. StompWebSocketSessionsContextManager.authenticate(message)
+ * StompWebSocketSessionsContextManager.getUser(session) мой аналог SecurityContextHolder.getContext().getAuthentication();
+ *
 *  Для чего это?
 *  1) Добавлять комментарии к посту который читает юзер
 *  2) Получать и отправлять сообщения в диалоге, уведомлять о прочтении
@@ -51,13 +62,15 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer { 
     private MessageChannel clientOutboundChannel;
 
     @Autowired
-    private WebSocketSessionsService webSocketSessionsService;
-
-    @Autowired
     private SecuredRequestCheckService checkService;
 
     @Autowired
     private UserService userService;
+
+    @Bean
+    public StompWebSocketSessionsContextManager webSocketSessionsContextManager(){
+        return new StompWebSocketSessionsContextManager(clientOutboundChannel, checkService, userService);
+    }
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -109,19 +122,18 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer { 
         Note that an interceptor only needs to authenticate and set the user header on the CONNECT Message.
         Spring will note and save the authenticated user and associate it with subsequent STOMP messages on the same session
         */
-        registration.setInterceptors(new AuthenticateConnectionsInterceptor(clientOutboundChannel, webSocketSessionsService,
-                checkService, userService));
+        registration.setInterceptors(new AuthenticateConnectionsInterceptor(webSocketSessionsContextManager()));
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
-        registry.addDecoratorFactory(new RegisterSessionWebSocketHanlerDecoratorFactory(webSocketSessionsService));
-/*       * Add a factory that to decorate the handler used to process WebSocket
+        /* Add a factory that to decorate the handler used to process WebSocket
          * messages. This may be useful for some advanced use cases, for example
          * to allow Spring Security to forcibly close the WebSocket session when
          * the corresponding HTTP session expires.
          * registry.addDecoratorFactory()*/
+        registry.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
+        registry.addDecoratorFactory(new RegisterSessionWebSocketHanlerDecoratorFactory());
     }
 
     @Override
