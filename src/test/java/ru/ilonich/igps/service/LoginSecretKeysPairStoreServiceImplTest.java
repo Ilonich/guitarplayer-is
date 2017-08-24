@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 @TestPropertySource(locations="classpath:application-test.properties")
 @Transactional
 public class LoginSecretKeysPairStoreServiceImplTest {
-    private static final String TEST_PAIR_ID = "test@asd.ro";
+    private static final Integer TEST_PAIR_ID = 1111;
     private static final LoginSecretKeysPair TEST_PAIR = new LoginSecretKeysPair(TEST_PAIR_ID, "public", "private", OffsetDateTime.now());
 
     @Autowired

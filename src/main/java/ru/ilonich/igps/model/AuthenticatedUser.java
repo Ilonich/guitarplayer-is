@@ -38,7 +38,7 @@ public class AuthenticatedUser implements UserDetails, CredentialsContainer {
         return get().getId();
     }
 
-    public int getId() {
+    public Integer getId() {
         return user.getId();
     }
 

@@ -38,13 +38,13 @@ public class SecuredRequestCheckServiceImpl implements SecuredRequestCheckServic
     }
 
     @Override
-    public String getPublicSecret(String iss) throws ExpiredAuthenticationException {
-        return keysStoreService.get(iss).getPublicKey();
+    public String getPublicSecret(Integer userId) throws ExpiredAuthenticationException {
+        return keysStoreService.get(userId).getPublicKey();
     }
 
     @Override
-    public String getPrivateSecret(String iss) throws ExpiredAuthenticationException {
-        return keysStoreService.get(iss).getPrivateKey();
+    public String getPrivateSecret(Integer userId) throws ExpiredAuthenticationException {
+        return keysStoreService.get(userId).getPrivateKey();
     }
 
     @Override

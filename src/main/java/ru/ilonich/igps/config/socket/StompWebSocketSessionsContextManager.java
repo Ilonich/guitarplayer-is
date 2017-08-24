@@ -83,11 +83,11 @@ public class StompWebSocketSessionsContextManager {
         try {
             String cookieString = getCookieStringFromSessionHandshakeHeaders(session);
             String jwtValue = parseJwtStringValue(cookieString);
-            String issuer = validateJwtAndGetIss(jwtValue);
+            Integer userId = validateJwtAndGetUserId(jwtValue);
             String jwtCsrf = getCsrf(jwtValue);
-            String serverEncodedCsrf = HmacSigner.encodeMac(checkService.getPublicSecret(issuer), jwtCsrf, CLAIM_WITH_CURRENT_ENCODING.get(ENCODING_CLAIM_PROPERTY.toString()));
+            String serverEncodedCsrf = HmacSigner.encodeMac(checkService.getPublicSecret(userId), jwtCsrf, CLAIM_WITH_CURRENT_ENCODING.get(ENCODING_CLAIM_PROPERTY.toString()));
             if (messageLogin.equals(jwtCsrf) && messageEncodedCsrfPwd.equals(serverEncodedCsrf)) {
-                User user = userService.getByEmail(issuer);
+                User user = userService.getById(userId);
                 WebSocketSessionsContextHolder.associateSessionWithUsername(sessionId, user.getId().toString());
                 WebSocketSessionsContextHolder.addUserId(user.getId());
                 return user;
@@ -129,12 +129,12 @@ public class StompWebSocketSessionsContextManager {
         return cookie.substring(start, end).split("=", 2)[1];
     }
 
-    private String validateJwtAndGetIss(String jwt) throws HmacException, ExpiredAuthenticationException, ParseException {
-        String iss = HmacSigner.getJwtClaim(jwt, JWT_CLAIM_LOGIN.toString());
-        String privateKey = checkService.getPrivateSecret(iss);
+    private Integer validateJwtAndGetUserId(String jwt) throws HmacException, ExpiredAuthenticationException, ParseException {
+        Integer userId = Integer.valueOf(HmacSigner.getJwtIss(jwt));
+        String privateKey = checkService.getPrivateSecret(userId);
         if (!HmacSigner.verifyJWT(jwt, privateKey)) throw new HmacException("Jwt is invalid");
         if (HmacSigner.isJwtExpired(jwt)) throw new HmacException("Jwt is expired");
-        return iss;
+        return userId;
     }
 
     private String getCsrf(String jwt) throws HmacException {

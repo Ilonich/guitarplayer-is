@@ -21,7 +21,7 @@ public class LoginSecretKeysPairStoreServiceImpl implements LoginSecretKeysPairS
     @Autowired
     private KeyPairRepository keyPairRepository;
 
-    private LoadingCache<String, LoginSecretKeysPair> keyCache;
+    private LoadingCache<Integer, LoginSecretKeysPair> keyCache;
 
     public LoginSecretKeysPairStoreServiceImpl() {
         keyCache = CacheBuilder.newBuilder()
@@ -29,12 +29,12 @@ public class LoginSecretKeysPairStoreServiceImpl implements LoginSecretKeysPairS
                 .expireAfterAccess(1, TimeUnit.HOURS)
                 .initialCapacity(10)
                 .maximumSize(Long.MAX_VALUE)
-                .build(new CacheLoader<String, LoginSecretKeysPair>() {
+                .build(new CacheLoader<Integer, LoginSecretKeysPair>() {
                     @Override
-                    public LoginSecretKeysPair load(String login) throws Exception {
-                        LoginSecretKeysPair result = keyPairRepository.getById(login);
+                    public LoginSecretKeysPair load(Integer userId) throws Exception {
+                        LoginSecretKeysPair result = keyPairRepository.getById(userId);
                         if (result == null) {
-                            throw new ExpiredAuthenticationException(login);
+                            throw new ExpiredAuthenticationException(userId.toString());
                         }
                         return result;
                     }
@@ -44,13 +44,13 @@ public class LoginSecretKeysPairStoreServiceImpl implements LoginSecretKeysPairS
     @Override
     public void store(LoginSecretKeysPair loginSecretKeysPair) {
         keyPairRepository.save(loginSecretKeysPair);
-        keyCache.put(loginSecretKeysPair.getEmailLogin(), loginSecretKeysPair);
+        keyCache.put(loginSecretKeysPair.getUserId(), loginSecretKeysPair);
     }
 
     @Override
-    public void remove(String login) {
-        keyPairRepository.deleteById(login);
-        keyCache.invalidate(login);
+    public void remove(Integer userId) {
+        keyPairRepository.deleteById(userId);
+        keyCache.invalidate(userId);
     }
 
     @Override
@@ -64,18 +64,18 @@ public class LoginSecretKeysPairStoreServiceImpl implements LoginSecretKeysPairS
     }
 
     @Override
-    public LoginSecretKeysPair get(String login) throws ExpiredAuthenticationException {
+    public LoginSecretKeysPair get(Integer userId) throws ExpiredAuthenticationException {
         try {
-            return keyCache.get(login);
+            return keyCache.get(userId);
         } catch (ExecutionException e) {
             throw (ExpiredAuthenticationException) e.getCause();
         }
     }
 
     @Override
-    public LoginSecretKeysPair nullableGet(String login) {
+    public LoginSecretKeysPair nullableGet(Integer userId) {
         try {
-            return keyCache.get(login);
+            return keyCache.get(userId);
         } catch (ExecutionException e) {
             return null;
         }

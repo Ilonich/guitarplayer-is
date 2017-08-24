@@ -43,9 +43,10 @@ public class XAuthTokenFilter extends GenericFilterBean {
                 validateNotNull(jwtCookie, "No jwt cookie found");
                 String jwtCookieValue = jwtCookie.getValue();
                 validateNotEmpty(jwtCookieValue, "JWT cookies value is missing from the request");
-                String login = HmacSigner.getJwtClaim(jwtCookieValue, JWT_CLAIM_LOGIN.toString());
-                validateNotNull(login, "No login found in JWT");
-                String privateKey = checkService.getPrivateSecret(login);
+                String loginClaim = HmacSigner.getJwtClaim(jwtCookieValue, JWT_CLAIM_LOGIN.toString());
+                validateNotNull(loginClaim, "No login claim found in JWT");
+                Integer userId = Integer.valueOf(loginClaim);
+                String privateKey = checkService.getPrivateSecret(userId);
                 validateIsTrue(HmacSigner.verifyJWT(jwtCookieValue, privateKey),"The Json Web Token is invalid");
                 validateIsTrue(!HmacSigner.isJwtExpired(jwtCookieValue),"The Json Web Token is expired");
                 String csrfHeader = request.getHeader(CSRF_CLAIM_HEADER.toString());
@@ -53,7 +54,7 @@ public class XAuthTokenFilter extends GenericFilterBean {
                 String jwtCsrf = HmacSigner.getJwtClaim(jwtCookieValue, CSRF_CLAIM_HEADER.toString());
                 validateNotNull(jwtCsrf, "No csrf claim found in jwt");
                 validateIsTrue(jwtCsrf.equals(csrfHeader), "Invalid CSRF header value");
-                this.authenticationService.authenticateByToken(login);
+                this.authenticationService.authenticateByToken(userId);
                 filterChain.doFilter(request, response);
             } catch (ExpiredAuthenticationException | HmacException | ParseException e) {
                 if (checkService.isAuthenticationRequired(request)) {

@@ -104,7 +104,6 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
         assertTrue(!result.getResponse().getHeader(CSRF_CLAIM_HEADER.toString()).isEmpty());
         assertTrue(!result.getResponse().getHeader(X_TOKEN_ACCESS.toString()).isEmpty());
         assertTrue(result.getResponse().getCookie(JWT_APP_COOKIE.toString()) != null);
-        assertTrue(keysStoreService.get(registerTO.getEmail()) != null);
     }
 
     @Test
@@ -139,29 +138,29 @@ public class AuthenticationControllerTest extends AbstractControllerTest {
 
     @Test(expected = ExpiredAuthenticationException.class)
     public void logoutSuccess() throws Exception {
-        LoginTO loginTO = new LoginTO("mod@igps.ru", "banme");
+        LoginTO loginTO = new LoginTO(UserTestData.MODERATOR.getEmail(), "banme");
         mockMVC.perform(authenticatedRequest(loginTO, RequestMethod.GET, "/api/logout", null))
                 .andExpect(status().is(200));
-        assertTrue(keysStoreService.get(loginTO.getLogin()) == null);
+        assertTrue(keysStoreService.get(UserTestData.MODERATOR.getId()) == null);
     }
 
     @Test
     public void expired() throws Exception {
-        MvcResult afterAuthResult = authenticate("mod@igps.ru", "banme").andReturn();
+        MvcResult afterAuthResult = authenticate(UserTestData.MODERATOR.getEmail(), "banme").andReturn();
         String date = OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         String digestMessage = "GEThttp://localhost/api/logout" + date;
         String secret = afterAuthResult.getResponse().getHeader(X_SECRET.toString());
         Cookie cookie = afterAuthResult.getResponse().getCookie(JWT_APP_COOKIE.toString());
         String csrf = HmacSigner.getJwtClaim(cookie.getValue(), CSRF_CLAIM_HEADER.toString());
         String digest = HmacSigner.encodeMac(secret, digestMessage, HMAC_SHA_256.toString());
-        keysStoreService.remove("mod@igps.ru");
+        keysStoreService.remove(UserTestData.MODERATOR.getId());
         MvcResult result = mockMVC.perform(get("/api/logout").header(X_DIGEST.toString(), digest).secure(true)
                 .header(X_ONCE.toString(), date)
                 .header(CSRF_CLAIM_HEADER.toString(), csrf)
                 .cookie(afterAuthResult.getResponse().getCookies())
                 .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(401))
                 .andDo(print()).andReturn();
-        System.out.println(result.getResponse().getStatus());
     }
 
     @Test

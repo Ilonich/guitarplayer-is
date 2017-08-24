@@ -83,7 +83,7 @@ public class JpaConfig implements TransactionManagementConfigurer {
     }
 
     private DataSource configureDataSource() {
-        HikariConfig config = new HikariConfig();
+        HikariConfig config = new HikariConfig(); //try https://dzone.com/articles/database-connection-pooling-in-java-with-hikaricp
         config.setDriverClassName("org.postgresql.Driver");
         config.setJdbcUrl(url);
         config.setUsername(username);

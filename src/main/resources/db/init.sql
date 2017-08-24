@@ -70,7 +70,7 @@ CREATE TABLE password_reset_verifications
 
 CREATE TABLE secret_keys_store
 (
-  email_as_login VARCHAR PRIMARY KEY,
+  user_id INTEGER PRIMARY KEY,
   public_secret VARCHAR,
   private_secret VARCHAR,
   expiries TIMESTAMP WITH TIME ZONE NOT NULL

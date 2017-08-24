@@ -67,10 +67,10 @@ public class HmacSecurityFilter extends GenericFilterBean {
                 } else {
                     messageDigest.append(request.getMethod()).append(urlQuery).append(xOnceHeader);
                 }
-                //Get Authentication jwt claim
                 String iss = HmacSigner.getJwtIss(jwtCookieValue);
+                Integer userId = Integer.valueOf(iss);
                 //Digest are calculated using a public shared secret
-                String publicSecret = checkService.getPublicSecret(iss);
+                String publicSecret = checkService.getPublicSecret(userId);
                 String encoding = HmacSigner.getJwtClaim(jwtCookieValue, ENCODING_CLAIM_PROPERTY.toString());
                 String digestServer = HmacSigner.encodeMac(publicSecret, messageDigest.toString(), encoding);
 

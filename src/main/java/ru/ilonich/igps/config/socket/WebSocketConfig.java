@@ -32,25 +32,7 @@ import java.util.List;
  * После проверки сохраняется в контекст связь юзера и сессии, см. StompWebSocketSessionsContextManager.authenticate(message)
  * StompWebSocketSessionsContextManager.getUser(session) мой аналог SecurityContextHolder.getContext().getAuthentication();
  *
-*  Для чего это?
-*  1) Добавлять комментарии к посту который читает юзер
-*  2) Получать и отправлять сообщения в диалоге, уведомлять о прочтении
-*  3) Отслеживать в диалоге друг друга, "печатает", "онлайн" или что-то вроде.
-*
- * What if you want to send messages to connected clients from any part of the application?
- * Any application component can send messages to the "brokerChannel". The easiest way to do that
- * is to have a SimpMessagingTemplate injected, and use it to send messages.
- * Typically it should be easy to have it injected by type, for example:
- * @Autowired
- * public GreetingController(SimpMessagingTemplate template) {
- * this.template = template;
- * }
- *
- * 	public void afterTradeExecuted(Trade trade) {
- * 	this.messagingTemplate.convertAndSendToUser(
- * 	trade.getUserName(), "/queue/position-updates", trade.getResult());
- * 	}
-* */
+ */
 
 @Configuration
 @EnableWebSocketMessageBroker
@@ -79,59 +61,18 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer { 
 
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/in");
-        registry.enableSimpleBroker("/out");
-
-        /*
-        registry.enableStompBrokerRelay("/topic", "/queue");
-
-        Check the STOMP documentation for your message broker of choice (e.g. RabbitMQ, ActiveMQ, etc.),
-        install the broker, and run it with STOMP support enabled. Then enable the STOMP broker relay in the Spring
-        configuration instead of the simple broker.
-
-        A STOMP broker relay maintains a single "system" TCP connection to the broker.
-        This connection is used for messages originating from the server-side application only,
-        not for receiving messages. You can configure the STOMP credentials for this connection,
-        i.e. the STOMP frame login and passcode headers.
-
-        This is exposed in both the XML namespace and the Java config as the systemLogin/systemPasscode properties
-        with default values guest/guest.
-
-        The STOMP broker relay always sets the login and passcode headers on every CONNECT frame that it forwards
-        to the broker on behalf of clients. Therefore WebSocket clients need not set those headers; they will be ignored.
-        As the following section explains, instead WebSocket clients should rely on HTTP authentication to protect the
-        WebSocket endpoint and establish the client identity.
-
-        The STOMP broker relay also sends and receives heartbeats to and from the message broker over the "system" TCP connection.
-        You can configure the intervals for sending and receiving heartbeats (10 seconds each by default). If connectivity to
-        the broker is lost, the broker relay will continue to try to reconnect, every 5 seconds, until it succeeds.
-
-        A Spring bean can implement ApplicationListener<BrokerAvailabilityEvent> in order to receive notifications when the "system"
-        connection to the broker is lost and re-established. For example a Stock Quote service broadcasting stock quotes can stop trying
-        to send messages when there is no active "system" connection.
-        */
+        registry.setApplicationDestinationPrefixes("/queue");
+        registry.enableSimpleBroker("/app");
     }
 
     @Override
     public void configureClientInboundChannel(ChannelRegistration registration) {
-        /*
-        Instead of using cookies they may prefer to authenticate with headers at the STOMP messaging protocol level
-        There are 2 simple steps to doing that:
-        1) Use the STOMP client to pass authentication header(s) at connect time.
-        2) Process the authentication header(s) with a ChannelInterceptor.
-        Note that an interceptor only needs to authenticate and set the user header on the CONNECT Message.
-        Spring will note and save the authenticated user and associate it with subsequent STOMP messages on the same session
-        */
         registration.setInterceptors(new AuthenticateConnectionsInterceptor(webSocketSessionsContextManager()));
+        registration.setInterceptors(new CheckUserSubscribePermissionInterceptor());
     }
 
     @Override
     public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        /* Add a factory that to decorate the handler used to process WebSocket
-         * messages. This may be useful for some advanced use cases, for example
-         * to allow Spring Security to forcibly close the WebSocket session when
-         * the corresponding HTTP session expires.
-         * registry.addDecoratorFactory()*/
         registry.setSendTimeLimit(15 * 1000).setSendBufferSizeLimit(512 * 1024);
         registry.addDecoratorFactory(new RegisterSessionWebSocketHanlerDecoratorFactory());
     }

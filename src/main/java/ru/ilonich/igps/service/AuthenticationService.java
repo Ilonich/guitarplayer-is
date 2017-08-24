@@ -15,6 +15,6 @@ public interface AuthenticationService {
     User register(RegisterTO registerTO, String confirmUrl) throws HmacException;
     boolean initiateReset(String email, String url) throws HmacException;
     void logout(AuthenticatedUser authenticatedUser);
-    void authenticateByToken(String username);
+    void authenticateByToken(Integer userId);
     void authenticateAnonymous();
 }

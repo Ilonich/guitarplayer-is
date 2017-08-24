@@ -46,22 +46,23 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         AuthenticatedUser user = authenticateAndGetAuthenticationPrincipal(loginTO);
 
         String csrfId = UUID.randomUUID().toString();
+        String iss = user.getId().toString();
         Map<String,String> customClaims = new HashMap<>(CLAIM_WITH_CURRENT_ENCODING);
         customClaims.put(CSRF_CLAIM_HEADER.toString(), csrfId);
-        customClaims.put(JWT_CLAIM_LOGIN.toString(), user.getUsername());
+        customClaims.put(JWT_CLAIM_LOGIN.toString(), iss);
 
-        LoginSecretKeysPair loginSecretKeysPair = keysStoreService.nullableGet(user.getUsername());
+        LoginSecretKeysPair loginSecretKeysPair = keysStoreService.nullableGet(user.getId());
         if (loginSecretKeysPair == null) {
             String privateSecret = HmacSigner.generateSecret();
             String publicSecret = HmacSigner.generateSecret();
-            loginSecretKeysPair = new LoginSecretKeysPair(user.getUsername(), publicSecret, privateSecret, OffsetDateTime.now().plusSeconds(JWT_TTL));
+            loginSecretKeysPair = new LoginSecretKeysPair(user.getId(), publicSecret, privateSecret, OffsetDateTime.now().plusSeconds(JWT_TTL));
         } else {
             loginSecretKeysPair.setExpirationDate(OffsetDateTime.now().plusSeconds(JWT_TTL));
         }
         keysStoreService.store(loginSecretKeysPair);
 
-        HmacToken privateToken = HmacSigner.getSignedToken(loginSecretKeysPair.getPrivateKey(), user.getUsername(), JWT_TTL, customClaims);
-        HmacToken publicToken = HmacSigner.getSignedToken(loginSecretKeysPair.getPublicKey(), user.getUsername(), JWT_TTL, CLAIM_WITH_CURRENT_ENCODING);
+        HmacToken privateToken = HmacSigner.getSignedToken(loginSecretKeysPair.getPrivateKey(), iss, JWT_TTL, customClaims);
+        HmacToken publicToken = HmacSigner.getSignedToken(loginSecretKeysPair.getPublicKey(), iss, JWT_TTL, CLAIM_WITH_CURRENT_ENCODING);
 
         response.addCookie(buildPrivateJwtCookie(privateToken.getJwt()));
         response.setHeader(X_TOKEN_ACCESS.toString(), publicToken.getJwt());
@@ -85,13 +86,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public void logout(AuthenticatedUser authenticatedUser) {
         if (authenticatedUser != null){
-            keysStoreService.remove(authenticatedUser.getUsername());
+            keysStoreService.remove(authenticatedUser.getId());
         }
     }
 
     @Override
-    public void authenticateByToken(String email) {
-        UserDetails userDetails = userService.loadUserByUsername(email);
+    public void authenticateByToken(Integer userId) {
+        UserDetails userDetails = new AuthenticatedUser(userService.getById(userId));
         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         SecurityContextHolder.getContext().setAuthentication(authToken);
     }

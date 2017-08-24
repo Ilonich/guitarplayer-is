@@ -26,14 +26,14 @@ public interface SecuredRequestCheckService {
      * @param iss issuer
      * @return secret key
      */
-    String getPublicSecret(String iss) throws ExpiredAuthenticationException;
+    String getPublicSecret(Integer iss) throws ExpiredAuthenticationException;
 
     /**
      * Get the stored private secret (locally,remotely,cache,etc..)
      * @param iss issuer
      * @return secret key
      */
-    String getPrivateSecret(String iss) throws ExpiredAuthenticationException;
+    String getPrivateSecret(Integer iss) throws ExpiredAuthenticationException;
 
     /**
      * Is the secret encoded in base 64

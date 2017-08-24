@@ -16,10 +16,10 @@ public interface KeyPairRepository extends JpaRepository<LoginSecretKeysPair, St
     @Transactional
     LoginSecretKeysPair save(LoginSecretKeysPair loginSecretKeysPair);
 
-    @Query("SELECT k FROM LoginSecretKeysPair k WHERE k.emailLogin=?1")
-    LoginSecretKeysPair getById(String loginEmail);
+    @Query("SELECT k FROM LoginSecretKeysPair k WHERE k.userId=?1")
+    LoginSecretKeysPair getById(Integer userId);
 
-    @Query("SELECT k.emailLogin FROM LoginSecretKeysPair k WHERE k.expirationDate <=?1")
+    @Query("SELECT k.userId FROM LoginSecretKeysPair k WHERE k.expirationDate <=?1")
     List<String> findAllExpiredTokensLogins(OffsetDateTime now);
 
     @Transactional
@@ -29,6 +29,6 @@ public interface KeyPairRepository extends JpaRepository<LoginSecretKeysPair, St
 
     @Transactional
     @Modifying
-    @Query("DELETE FROM LoginSecretKeysPair k WHERE k.emailLogin=?1")
-    int deleteById(String loginEmail);
+    @Query("DELETE FROM LoginSecretKeysPair k WHERE k.userId=?1")
+    int deleteById(Integer userId);
 }

@@ -15,8 +15,8 @@ public final class LoginSecretKeysPair implements Serializable {
     private static final long serialVersionUID = -4071505;
 
     @Id
-    @Column(name = "email_as_login")
-    private String emailLogin;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(name = "public_secret")
     private String publicKey;
@@ -29,19 +29,19 @@ public final class LoginSecretKeysPair implements Serializable {
 
     public LoginSecretKeysPair(){}
 
-    public LoginSecretKeysPair(String emailLogin, String publicKey, String privateKey, OffsetDateTime expirationDate) {
-        this.emailLogin = emailLogin;
+    public LoginSecretKeysPair(Integer userId, String publicKey, String privateKey, OffsetDateTime expirationDate) {
+        this.userId = userId;
         this.publicKey = publicKey;
         this.privateKey = privateKey;
         this.expirationDate = expirationDate;
     }
 
-    public String getEmailLogin() {
-        return emailLogin;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setEmailLogin(String emailLogin) {
-        this.emailLogin = emailLogin;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     public String getPublicKey() {
@@ -70,7 +70,7 @@ public final class LoginSecretKeysPair implements Serializable {
 
     @Override
     public int hashCode() {
-        return emailLogin.hashCode();
+        return userId.hashCode();
     }
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
@@ -83,7 +83,7 @@ public final class LoginSecretKeysPair implements Serializable {
 
         LoginSecretKeysPair that = (LoginSecretKeysPair) obj;
 
-        return this.getEmailLogin().equals(that.getEmailLogin())
+        return this.getUserId().equals(that.getUserId())
                 && this.getPrivateKey().equals(that.getPrivateKey())
                 && this.getPublicKey().equals(that.getPublicKey())
                 && this.getExpirationDate().equals(that.getExpirationDate());
